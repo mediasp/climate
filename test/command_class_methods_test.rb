@@ -39,6 +39,13 @@ describe Climate::Command::ClassMethods do
 
     it "raises an error if you try to declare a required argument after an " +
       "optional one" do
+
+
+      @subject.cli_argument "foo", "level of foo", :required => false
+
+      assert_raises ArgumentDefinitionError do
+        @subject.cli_argument "bar", "level of bar"
+      end
     end
   end
 

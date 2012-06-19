@@ -4,6 +4,9 @@ module Climate
     module ClassMethods
 
       def cli_argument(*args)
+        raise DefinitionError, "can not define a required argument after an " +
+          "optional one" if cli_arguments.any?(&:optional?)
+
         cli_arguments << Argument.new(*args)
       end
 
@@ -11,18 +14,8 @@ module Climate
         cli_options << Option.new(*args)
       end
 
-      def command_name
-        self.name.split("::").last.gsub(/(.)([A-Z])/, '\1_\2').downcase
-      end
-
-      def usage_line
-        pp_args = cli_arguments.map {|arg| arg.formatted }
-        "Usage: msp_release #{command_name} #{pp_args.join(' ')}"
-      end
-
       def trollop_parser
         parser = Trollop::Parser.new
-        parser.banner self.description
 
         if cli_arguments.size > 0
           parser.banner ""
@@ -34,7 +27,7 @@ module Climate
 
         parser.banner ""
         cli_options.each do |option|
-          parser.opt(option.name, option.description, option.extra)
+          parser.opt(option.name, option.description, option.options)
         end
         parser
       end
@@ -42,18 +35,23 @@ module Climate
       def check_arguments(args)
 
         if args.size > cli_arguments.size
-          $stderr.puts(usage_line)
-          raise ExitException, "Too many arguments supplied to command #{command_name}"
+          raise UnexpectedArgumentError, "#{args.size} for #{cli_arguments.size}"
         end
 
         cli_arguments.zip(args).map do |argument, arg_value|
           if argument.required? && (arg_value.nil? || arg_value.empty?)
-            $stderr.puts("Error: you must supply an argument for #{argument.name}")
-            $stderr.puts(usage_line)
-            raise ExitException, "Not enough arguments supplied to command #{command_name}"
+            raise MissingArgumentError, argument.name
           end
           {argument.name => arg_value}
         end.inject {|a,b| a.merge(b) }
+      end
+
+      def parse(arguments)
+        parser = self.trollop_parser
+        options = parser.parse(arguments)
+        arguments = self.check_arguments(parser.leftovers)
+
+        [arguments, options]
       end
 
       private
@@ -69,9 +67,7 @@ module Climate
     end
 
     def initialize(arguments)
-      parser = self.class.trollop_parser
-      @options = parser.parse(arguments)
-      @arguments = self.class.check_arguments(parser.leftovers)
+      @arguments, @options = self.class.parse(arguments)
     end
 
     attr_accessor :options, :arguments

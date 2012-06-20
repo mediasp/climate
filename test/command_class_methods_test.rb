@@ -1,4 +1,5 @@
 require 'test/helpers'
+require 'stringio'
 
 describe Climate::Command::ClassMethods do
 
@@ -122,6 +123,72 @@ describe Climate::Command::ClassMethods do
         assert opts
         assert_equal "bar", opts["foo"]
       end
+    end
+
+    describe "big juicy fruit example" do
+      before do
+        @subject.instance_eval do
+          cli_option "log_stdout", "log stdout", :default => false
+          cli_option "num_peaches", "peach count", :short => 'p', :default => 0
+
+          cli_option "num_splines", "how many splines", :type => Integer,
+          :required => true
+
+          cli_argument "path", "path to file"
+          cli_argument "output_host", "optional hose", :required => false
+        end
+      end
+
+      it "raises an error if you do not supply any arguments" do
+        assert_raises Climate::MissingArgumentError do
+          @subject.parse ["--num-splines=1"]
+        end
+      end
+
+      it "raises an error if you do not supply the required options" do
+        assert_raises Trollop::CommandlineError do
+          @subject.parse ["/tmp"]
+        end
+      end
+
+      it "returns provided values" do
+        args, opts = @subject.parse ["/tmp", 'firehose', '--log-stdout',
+          '-p', '5', '-n', '1']
+
+        assert_equal '/tmp', args['path']
+        assert_equal 'firehose', args['output_host']
+        assert_equal true, opts['log_stdout']
+        assert_equal 5, opts['num_peaches']
+        assert_equal 1, opts['num_splines']
+      end
+    end
+  end
+
+  describe "#help_banner" do
+
+    before do
+      @subject.instance_eval do
+        cli_option "log_stdout", "log to stdout", :default => false
+        cli_option "num_peaches", "peach count", :short => 'p', :default => 0
+
+        cli_option "num_splines", "how many splines", :type => Integer,
+        :required => true
+
+        cli_argument "path", "path to file"
+        cli_argument "output_host", "optional hose", :required => false
+      end
+    end
+
+    it "outputs some useful output :)" do
+      stringio = StringIO.new
+      @subject.help_banner(stringio)
+      output = stringio.string
+
+      assert_match /path.+path to file/, output
+      assert_match /output_host.+optional hose/, output
+      assert_match /--log-stdout.+log to stdout/, output
+      assert_match /--num-peaches.+-p.+peach count/, output
+      assert_match /--num-splines.+.+how many splines/, output
     end
 
   end

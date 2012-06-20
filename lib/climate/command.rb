@@ -32,6 +32,10 @@ module Climate
         parser
       end
 
+      def help_banner(out=$stdout)
+        trollop_parser.educate(out)
+      end
+
       def check_arguments(args)
 
         if args.size > cli_arguments.size

@@ -1,10 +1,10 @@
 require 'test/helpers'
 require 'stringio'
 
-describe Climate::Command::ClassMethods do
+describe Climate::Parser do
 
   before do
-    @subject = Object.new.extend(Climate::Command::ClassMethods)
+    @subject = Climate::Parser.new
   end
 
   after do

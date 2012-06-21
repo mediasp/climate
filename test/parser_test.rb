@@ -16,7 +16,7 @@ describe Climate::Parser do
     describe "with a required argument" do
 
       before do
-        @subject.cli_argument "foo", "level of foo"
+        @subject.arg "foo", "level of foo"
       end
 
       it "raises an error if you do not supply any arguments" do
@@ -41,8 +41,8 @@ describe Climate::Parser do
     describe "with a required and an optional argument" do
 
       before do
-        @subject.cli_argument "foo", "level of foo"
-        @subject.cli_argument "bar", "select your bar", :required => false
+        @subject.arg "foo", "level of foo"
+        @subject.arg "bar", "select your bar", :required => false
       end
 
       it "raises an error if you do not supply any arguments" do
@@ -76,7 +76,7 @@ describe Climate::Parser do
     describe "with an option with a default" do
 
       before do
-        @subject.cli_option "foo", "foo time", :default => 'cats'
+        @subject.opt "foo", "foo time", :default => 'cats'
       end
 
       it "returns the default value if no foo option is supplied" do
@@ -102,7 +102,7 @@ describe Climate::Parser do
     describe "with an option with a non-standard short form " do
 
       before do
-        @subject.cli_option "foo", "foo time", :short => 'l', :type => String
+        @subject.opt "foo", "foo time", :short => 'l', :type => String
       end
 
       it "returns the given value" do
@@ -115,7 +115,7 @@ describe Climate::Parser do
     describe "with an option with a non-standard long form " do
 
       before do
-        @subject.cli_option "foo", "foo time", :long => 'whatevs', :type => String
+        @subject.opt "foo", "foo time", :long => 'whatevs', :type => String
       end
 
       it "returns the given value" do
@@ -128,14 +128,14 @@ describe Climate::Parser do
     describe "big juicy fruit example" do
       before do
         @subject.instance_eval do
-          cli_option "log_stdout", "log stdout", :default => false
-          cli_option "num_peaches", "peach count", :short => 'p', :default => 0
+          opt "log_stdout", "log stdout", :default => false
+          opt "num_peaches", "peach count", :short => 'p', :default => 0
 
-          cli_option "num_splines", "how many splines", :type => Integer,
+          opt "num_splines", "how many splines", :type => Integer,
           :required => true
 
-          cli_argument "path", "path to file"
-          cli_argument "output_host", "optional hose", :required => false
+          arg "path", "path to file"
+          arg "output_host", "optional hose", :required => false
         end
       end
 
@@ -168,14 +168,14 @@ describe Climate::Parser do
 
     before do
       @subject.instance_eval do
-        cli_option "log_stdout", "log to stdout", :default => false
-        cli_option "num_peaches", "peach count", :short => 'p', :default => 0
+        opt "log_stdout", "log to stdout", :default => false
+        opt "num_peaches", "peach count", :short => 'p', :default => 0
 
-        cli_option "num_splines", "how many splines", :type => Integer,
+        opt "num_splines", "how many splines", :type => Integer,
         :required => true
 
-        cli_argument "path", "path to file"
-        cli_argument "output_host", "optional hose", :required => false
+        arg "path", "path to file"
+        arg "output_host", "optional hose", :required => false
       end
     end
 
@@ -195,7 +195,7 @@ describe Climate::Parser do
 
   describe "#cli_argument" do
     it "lets you declare a cli argument" do
-      @subject.cli_argument "cat_count", "number of cats"
+      @subject.arg "cat_count", "number of cats"
       arg = @subject.send(:cli_arguments).find {|h| h.name == "cat_count" }
       assert arg
       assert_equal "number of cats", arg.description
@@ -206,14 +206,14 @@ describe Climate::Parser do
     it "lets you declare multiple cli arguments, remembering the order in which they " +
       "are declared" do
 
-      @subject.cli_argument "foo", "level of foo"
-      @subject.cli_argument "bar", "level of bar"
+      @subject.arg "foo", "level of foo"
+      @subject.arg "bar", "level of bar"
 
       assert_equal ["foo", "bar"], @subject.send(:cli_arguments).map {|a| a.name }
     end
 
     it "lets you declare an optional argument" do
-      @subject.cli_argument "log", "whether to log", :required => false
+      @subject.arg "log", "whether to log", :required => false
       arg = @subject.send(:cli_arguments).find {|h| h.name == "log" }
       assert arg
       assert_equal false, arg.required?
@@ -223,17 +223,17 @@ describe Climate::Parser do
     it "raises an error if you try to declare a required argument after an " +
       "optional one" do
 
-      @subject.cli_argument "foo", "level of foo", :required => false
+      @subject.arg "foo", "level of foo", :required => false
 
       assert_raises Climate::DefinitionError do
-        @subject.cli_argument "bar", "level of bar"
+        @subject.arg "bar", "level of bar"
       end
     end
   end
 
   describe "#cli_option" do
     it "lets you declare an option with a name and a description" do
-      @subject.cli_option "foo", "whether to foo"
+      @subject.opt "foo", "whether to foo"
       opt = @subject.send(:cli_options).find {|o| o.name == "foo" }
       assert opt
       assert "foo", opt.name

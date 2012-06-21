@@ -39,7 +39,7 @@ This style is more intended for embedding a CLI in to your existing application
 
       def run
         file = File.open(arguments[:path], 'r')
-        puts("loaded #{file}") if options[:log]
+        puts("loaded #{file}") if parent.options[:log]
       end
     end
 

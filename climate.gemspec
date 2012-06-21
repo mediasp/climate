@@ -15,6 +15,7 @@ spec = Gem::Specification.new do |s|
 
   s.add_dependency('trollop')
   s.add_development_dependency('minitest')
+  s.add_development_dependency('yard')
 
   s.files = Dir.glob("lib/**/*.rb") + ['README']
 end

@@ -13,6 +13,16 @@ module Climate
     def required? ; @required   ; end
     def optional? ; ! required? ; end
 
+    def usage
+      string = "<#{name}>"
+
+      if optional?
+        "[#{string}]"
+      else
+        string
+      end
+    end
+
     def formatted
        required?? name.to_s.upcase : "[#{name.to_s.upcase}]"
     end

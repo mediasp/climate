@@ -13,13 +13,13 @@ describe Climate::Command do
     assert_raises Climate::DefinitionError do
       Class.new(Climate::Command) do
         arg "foo", "bar"
-        add_subcommand("pete", ExampleCommandFoo)
+        add_subcommand(ExampleCommandFoo)
       end
     end
 
     assert_raises Climate::DefinitionError do
       Class.new(Climate::Command) do
-        add_subcommand("pete", ExampleCommandFoo)
+        add_subcommand(ExampleCommandFoo)
         arg "foo", "bar"
       end
     end
@@ -27,7 +27,8 @@ describe Climate::Command do
 
   it 'lets the child command add itself to a parent' do
     child = Class.new(Climate::Command) do
-      subcommand 'child', ParentCommandFoo
+      name 'child'
+      subcommand_of ParentCommandFoo
 
       def run ; STASH[:ran] = true ;  end
     end
@@ -36,24 +37,30 @@ describe Climate::Command do
     assert STASH[:ran]
   end
 
-  describe '.run' do
+  class ParentCommandFoo < Climate::Command
+    name 'parent'
+    description 'Parent command that does so many things, it is truly wonderful'
+    opt 'log', 'whether to log', :default => false
+  end
 
-    class ParentCommandFoo < Climate::Command
-      opt 'log', 'whether to log', :default => false
-    end
+  class ExampleCommandFoo < Climate::Command
+    name  'example'
+    subcommand_of ParentCommandFoo
+    description 'This command is an example to all other commands'
+    opt 'num_tanks', 'how many tanks', :default => 1
+    arg 'path', 'path to file'
 
-    class ExampleCommandFoo < Climate::Command
-
-      subcommand 'example', ParentCommandFoo
-      opt 'num_tanks', 'how many tanks', :default => 1
-      arg 'path', 'path to file'
-
-      def run
-        STASH[:parent] = parent
+    def run
+      STASH[:parent] = parent
         STASH[:arguments] = arguments
-        STASH[:options] = options
-      end
+      STASH[:options] = options
     end
+  end
+
+  describe '.help' do
+  end
+
+  describe '.run' do
 
     describe 'with a basic command' do
       it 'will instantiate an instance of the command and run it using the ' +
@@ -73,6 +80,12 @@ describe Climate::Command do
         assert STASH[:parent]
         assert STASH[:parent].options['log']
         assert_equal ParentCommandFoo, STASH[:parent].class
+      end
+
+      it 'will raise a missing argument exception if no argument is passed' do
+        assert_raises Climate::MissingArgumentError do
+          ParentCommandFoo.run(["--log"])
+        end
       end
     end
   end

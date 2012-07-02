@@ -32,7 +32,7 @@ module Climate
 
       parser.banner ""
       cli_options.each do |option|
-        parser.opt(option.name, option.description, option.options)
+        option.add_to(parser)
       end
       parser
     end
@@ -41,17 +41,23 @@ module Climate
       trollop_parser.educate(out)
     end
 
-    def check_arguments(args)
+    def check_arguments(args, command=self)
 
       if args.size > cli_arguments.size
-        raise UnexpectedArgumentError, "#{args.size} for #{cli_arguments.size}"
+        raise UnexpectedArgumentError.new(command, "#{args.size} for #{cli_arguments.size}")
       end
 
       cli_arguments.zip(args).map do |argument, arg_value|
         if argument.required? && (arg_value.nil? || arg_value.empty?)
-          raise MissingArgumentError, argument.name
+          raise MissingArgumentError.new(command, argument.name)
         end
-        {argument.name => arg_value}
+
+        # no arg given is different to an empty arg
+        if arg_value.nil?
+          {}
+        else
+          {argument.name => arg_value}
+        end
       end.inject {|a,b| a.merge(b) } || {}
     end
 
@@ -71,9 +77,6 @@ module Climate
       [arguments, options, leftovers]
     end
 
-    private
-
-    # kept private to prevent mutation
     def cli_options   ; @cli_options ||= []   ; end
     def cli_arguments ; @cli_arguments ||= [] ; end
 

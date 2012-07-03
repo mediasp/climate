@@ -50,8 +50,12 @@ module Climate
 
       # Set the description for this command
       # @param [String] string Description/Banner/Help text
-      def description(string)
-        @description = string
+      def description(string=nil)
+        if string
+          @description = string
+        else
+          @description
+        end
       end
 
       # Set the parent of this command
@@ -75,9 +79,9 @@ module Climate
         end
       end
 
-      def has_subcommands?
-        not subcommands.empty?
-      end
+      def has_subcommands? ; not subcommands.empty?   ; end
+      def has_options? ;     not cli_options.empty?   ; end
+      def has_arguments? ;   not cli_arguments.empty? ; end
 
       def subcommands ; @subcommands ||= [] ; end
 

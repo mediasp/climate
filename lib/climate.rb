@@ -21,8 +21,13 @@ module Climate
     end
   end
 
-  def self.print_usage(command_class)
-    Help.new(command_class).print
+  def self.print_usage(command_class, options={})
+    help = Help.new(command_class)
+
+    help.print
+  end
+
+  def run(&block)
   end
 end
 

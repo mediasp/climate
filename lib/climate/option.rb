@@ -30,7 +30,7 @@ module Climate
       @specs ||= parser.specs[@name]
     end
 
-    def usage
+    def usage(options={})
       help =
         if type == :flag
           "-#{short}"
@@ -38,7 +38,16 @@ module Climate
           "-#{short}<#{type}>"
         end
 
-      if optional?
+      if options[:with_long]
+        help = help + options.fetch(:separator, '|') +
+          if type == :flag
+            "--#{long}"
+          else
+            "--#{long}=<#{type}>"
+          end
+      end
+
+      if optional? && !options.fetch(:hide_optional, false)
         "[#{help}]"
       else
         help

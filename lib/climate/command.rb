@@ -80,9 +80,6 @@ module Climate
       end
 
       def has_subcommands? ; not subcommands.empty?   ; end
-      def has_options? ;     not cli_options.empty?   ; end
-      def has_arguments? ;   not cli_arguments.empty? ; end
-
       def subcommands ; @subcommands ||= [] ; end
 
       private

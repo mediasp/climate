@@ -80,6 +80,9 @@ module Climate
     def cli_options   ; @cli_options ||= []   ; end
     def cli_arguments ; @cli_arguments ||= [] ; end
 
+    def has_options? ;     not cli_options.empty?   ; end
+    def has_arguments? ;   not cli_arguments.empty? ; end
+
   end
 
   class Parser

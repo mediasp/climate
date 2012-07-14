@@ -32,7 +32,7 @@ module Climate
       newline
       puts "Description"
       indent do
-        puts(command_class.description)
+        puts(command_class.description || '')
       end
     end
 

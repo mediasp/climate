@@ -5,13 +5,16 @@ magnificence that is trollop, with more of a mind for building up a git-like
 CLI to access your application without enforcing a particular style of project
 structure.
 
-Designed for both simple uses, as well as more complicated use cases
+Designed for both simple and more complex cases.
 
 # Easy
 
 Useful for one-shot scripts:
 
-    include Climate::Script
+    #! /usr/bin/env climate
+    # the shebang is optional, you can just load the script with
+    # `ruby -r rubygems -r climate script.rb`
+    extend Climate::Script
     description "Do something arbitrary to a file"
 
     opt :log, "Whether to log to stdout" :default => false
@@ -27,12 +30,14 @@ Useful for one-shot scripts:
 This style is intended for embedding a CLI in to your existing application.
 
     class Parent < Climate::Command
+      name 'thing'
       description "App that does it all, yet without fuss"
       opt    :log, "Whether to log to stdout" :default => false
     end
 
     class Arbitrary < Climate::Command
-      subcommand 'arbitrary', Parent
+      name 'arbitrary'
+      subcommand_of, Parent
       description "Do something arbitrary to a file"
       arg    :path "Path to input file"
 
@@ -46,8 +51,10 @@ This style is intended for embedding a CLI in to your existing application.
       Parent.run(ARGV)
     end
 
-    ruby -rclimate example.rb --log /tmp/file
+There is a working example, `example.rb` that you can test out with
+
+    ruby -rrubygems -rclimate example.rb --log /tmp/file
 
 or
 
-    ruby -rclimate example.rb --help
+    ruby -rrubygems -rclimate example.rb --help

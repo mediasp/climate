@@ -9,32 +9,31 @@ Designed for both simple uses, as well as more complicated use cases
 
 # Easy
 
-Useful for one-shot scripts
+Useful for one-shot scripts:
 
-    Climate.run do
-      banner "Do something arbitrary to a file"
+    include Climate::Script
+    description "Do something arbitrary to a file"
 
-      opt :log, "Whether to log to stdout" :default => false
-      arg :path "Path to input file"
+    opt :log, "Whether to log to stdout" :default => false
+    arg :path "Path to input file"
 
-      def run
-        file = File.open(arguments[:path], 'r')
-        puts("loaded #{file}") if options[:log]
-      end
+    def run
+      file = File.open(arguments[:path], 'r')
+      puts("loaded #{file}") if options[:log]
     end
 
 # Medium
 
-This style is more intended for embedding a CLI in to your existing application
+This style is intended for embedding a CLI in to your existing application.
 
     class Parent < Climate::Command
-      banner "App that does it all, yet without fuss"
+      description "App that does it all, yet without fuss"
       opt    :log, "Whether to log to stdout" :default => false
     end
 
     class Arbitrary < Climate::Command
       subcommand 'arbitrary', Parent
-      banner "Do something arbitrary to a file"
+      description "Do something arbitrary to a file"
       arg    :path "Path to input file"
 
       def run
@@ -47,8 +46,8 @@ This style is more intended for embedding a CLI in to your existing application
       Parent.run(ARGV)
     end
 
-ruby -rclimate example.rb --log /tmp/file
+    ruby -rclimate example.rb --log /tmp/file
 
 or
 
-ruby -rclimate example.rb --help
+    ruby -rclimate example.rb --help

@@ -9,15 +9,19 @@ module Climate
       exit(e.exitcode)
     rescue HelpNeeded => e
       print_usage(e.command_class)
+      exit(1)
     rescue UnknownCommandError => e
       $stderr.puts("Unknown command: #{e.message}")
       print_usage(e.command_class)
+      exit(1)
     rescue MissingArgumentError => e
       $stderr.puts("Missing argument: #{e.message}")
       print_usage(e.command_class)
+      exit(1)
     rescue => e
       $stderr.puts("Unexpected error: #{e.message}")
       $stderr.puts(e.backtrace)
+      exit(2)
     end
   end
 

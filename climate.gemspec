@@ -13,6 +13,8 @@ spec = Gem::Specification.new do |s|
   s.summary = "Library for building command line interfaces"
   s.description = 'Library, not a framework, for building command line interfaces to your ruby application'
 
+  s.executables = ['climate']
+
   s.add_dependency('trollop')
   s.add_development_dependency('minitest')
   s.add_development_dependency('yard')

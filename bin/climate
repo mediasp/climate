@@ -1,0 +1,14 @@
+#! /usr/bin/env ruby
+
+require 'climate'
+scriptfile = ARGV.shift or begin
+  $stderr.puts("Path to ruby script expected")
+  $stderr.puts("usage: climate <script> <arguments...>")
+  exit 1
+end
+
+# if climate is used to invoke a script, we can not use $PROGRAM_NAME to
+# identify the script, so we remember it from here
+$CLIMATE_PROGRAM_NAME = scriptfile
+
+load scriptfile

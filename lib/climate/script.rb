@@ -35,7 +35,7 @@ module Climate
     attr_reader :arguments, :options, :leftovers
 
     def ancestors ; [self] ; end
-    def name ; File.basename($PROGRAM_NAME) ; end
+    def name ; File.basename($CLIMATE_PROGRAM_NAME || $PROGRAM_NAME) ; end
 
     def has_subcommands? ; false ; end
 

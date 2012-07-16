@@ -71,6 +71,24 @@ describe Climate::Command do
         assert_equal '/tmp/sexy', STASH[:arguments]['path']
         assert_equal 4, STASH[:options]['num_tanks']
       end
+
+      it 'will supply a missing command_class to any CommandError that ' +
+        'is raised' do
+        command_class = Class.new(Climate::Command) do
+          name 'test'
+
+          def run
+            raise Climate::ExitException, 'too many oranges'
+          end
+        end
+
+        begin
+          command_class.run([])
+          assert false, 'should have raised an exit exception'
+        rescue Climate::ExitException => e
+          assert_equal command_class, e.command_class
+        end
+      end
     end
 
     describe 'with a parent command' do
@@ -85,6 +103,23 @@ describe Climate::Command do
       it 'will raise a missing argument exception if no argument is passed' do
         assert_raises Climate::MissingArgumentError do
           ParentCommandFoo.run(["--log"])
+        end
+      end
+
+      it 'will supply a missing command_class to a CommandError that is raised' do
+        command_class = Class.new(Climate::Command) do
+          name 'test'
+          subcommand_of ParentCommandFoo
+
+          def run
+            raise Climate::ExitException, 'too many oranges'
+          end
+        end
+
+        begin
+          ParentCommandFoo.run ['test']
+        rescue Climate::ExitException => e
+          assert_equal command_class, e.command_class
         end
       end
     end

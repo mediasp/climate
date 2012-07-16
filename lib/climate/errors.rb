@@ -9,9 +9,9 @@ module Climate
   class CommandError < Error
 
     # The command that raised the error
-    attr_reader :command_class
+    attr_accessor :command_class
 
-    def initialize(command_or_class, msg=nil)
+    def initialize(msg=nil, command_or_class=nil)
       @command_class = command_or_class.is_a?(Command) ? command_or_class.class :
         command_or_class
       super(msg)
@@ -25,13 +25,15 @@ module Climate
     # some libraries (popen, process?) refer to this as exitcode without a _
     alias :exitcode :exit_code
 
-    def initialize(command_class, msg, exit_code=1)
+    def initialize(msg, exit_code=1)
       @exit_code = exit_code
-      super(command_class, msg)
+      super(msg)
     end
   end
 
-  class HelpNeeded < CommandError ; end
+  class HelpNeeded < CommandError
+    def initialize(command_class) ; super(nil, command_class) ; end
+  end
 
   # Raised when a {Command} is run with too many arguments
   class UnexpectedArgumentError < CommandError ; end

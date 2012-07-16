@@ -24,7 +24,13 @@ module Climate
         end
 
         if subcommands.empty?
-          instance.run
+          begin
+            instance.run
+          rescue Climate::CommandError => e
+            # make it easier on users
+            e.command_class = self if e.command_class.nil?
+            raise
+          end
         else
           find_and_run_subcommand(instance, options)
         end
@@ -88,8 +94,8 @@ module Climate
         command_name, *arguments = parent.leftovers
 
         if command_name.nil?
-          raise MissingArgumentError.new(parent, "command #{parent.class.name}" +
-            " expects a subcommand as an argument")
+          raise MissingArgumentError.new("command #{parent.class.name}" +
+            " expects a subcommand as an argument", parent)
         end
 
         found = subcommands.find {|c| c.name == command_name }
@@ -97,7 +103,7 @@ module Climate
         if found
           found.run(arguments, options.merge(:parent => parent))
         else
-          raise UnknownCommandError.new(parent, command_name)
+          raise UnknownCommandError.new(command_name, parent)
         end
       end
 

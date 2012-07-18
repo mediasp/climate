@@ -23,7 +23,7 @@ module Climate
       print_usage(e.command_class)
       exit(1)
     rescue => e
-      $stderr.puts("Unexpected error: #{e.message}")
+      $stderr.puts("Unexpected error: #{e.class.name} - #{e.message}")
       $stderr.puts(e.backtrace)
       exit(2)
     end

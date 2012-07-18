@@ -9,7 +9,7 @@ module Climate
       exit(e.exitcode)
     rescue HelpNeeded => e
       print_usage(e.command_class)
-      exit(1)
+      exit(0)
     rescue UnknownCommandError => e
       $stderr.puts("Unknown command: #{e.message}")
       print_usage(e.command_class)

@@ -157,6 +157,16 @@ describe Climate::Parser do
         args, _ = @subject.parse []
         assert_equal [], args['foos']
       end
+
+      it "returns a single argument as a single element array" do
+        args, _ = @subject.parse ["cat's"]
+        assert_equal ["cat's"], args['foos']
+      end
+
+      it "returns multiple arguments as an array" do
+        args, _ = @subject.parse ["cat's", "whiskers"]
+        assert_equal ["cat's", "whiskers"], args['foos']
+      end
     end
 
     describe "with some single arguments followed by a multi" do

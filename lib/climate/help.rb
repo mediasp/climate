@@ -18,14 +18,14 @@ module Climate
 
     def print_usage
       ancestor_list = command_class.ancestors.map(&:name).join(' ')
-      opts_usage = command_class.cli_options.map {|opt| opt.usage }.join(' ')
+      opts_usage = command_class.cli_options.map {|opt| opt.usage }
       args_usage =
         if command_class.has_subcommands?
-          "<subcommand> [<arguments>]"
+          ["<subcommand> [<arguments>]"]
         else
-          command_class.cli_arguments.map {|arg| arg.usage }.join(' ')
+          command_class.cli_arguments.map {|arg| arg.usage }
         end
-      puts("usage: #{ancestor_list} #{opts_usage} #{args_usage}")
+      puts("usage: #{ancestor_list} #{(opts_usage + args_usage).join(' ')}")
     end
 
     def print_description

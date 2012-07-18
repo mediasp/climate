@@ -125,6 +125,66 @@ describe Climate::Parser do
       end
     end
 
+    describe "with a multi argument" do
+      before do
+        @subject.arg "foos", "all the foos you dream of", :multi => true
+      end
+
+      it "raises an error if you do not supply at least one foo" do
+        assert_raises Climate::MissingArgumentError do
+          @subject.parse []
+        end
+      end
+
+      it "returns a single argument as a single element array" do
+        args, _ = @subject.parse ["cat's"]
+        assert_equal ["cat's"], args['foos']
+      end
+
+      it "returns multiple arguments as an array" do
+        args, _ = @subject.parse ["cat's", "whiskers"]
+        assert_equal ["cat's", "whiskers"], args['foos']
+      end
+    end
+
+    describe "with a multi argument that is not required" do
+
+      before do
+        @subject.arg 'foos', 'so much foo in this club', :multi => true, :required => false
+      end
+
+      it "returns no arguments as an empty array" do
+        args, _ = @subject.parse []
+        assert_equal [], args['foos']
+      end
+    end
+
+    describe "with some single arguments followed by a multi" do
+      before do
+        @subject.arg 'foo', 'foo'
+        @subject.arg 'bar', 'bar', :required => false
+        @subject.arg 'baz', 'many baz make light work', :multi => true, :required => false
+      end
+
+      it "can parse the single required argument" do
+        args, _ = @subject.parse ['foo']
+        assert_equal 'foo', args['foo']
+      end
+
+      it "can parse the required and an optional argument" do
+        args, _ = @subject.parse ['foo', 'bar']
+        assert_equal 'foo', args['foo']
+        assert_equal 'bar', args['bar']
+      end
+
+      it "can parse the first two single args, followed by any number of multis" do
+        args, _ = @subject.parse ['foo', 'bar', 'baz1', 'baz2', 'baz3']
+        assert_equal 'foo', args['foo']
+        assert_equal 'bar', args['bar']
+        assert_equal ['baz1', 'baz2', 'baz3'], args['baz']
+      end
+    end
+
     describe "big juicy fruit example" do
       before do
         @subject.instance_eval do
@@ -227,6 +287,14 @@ describe Climate::Parser do
 
       assert_raises Climate::DefinitionError do
         @subject.arg "bar", "level of bar"
+      end
+    end
+
+    it "raises an error if you try to declare an argument after a multi" do
+      @subject.arg "foos", "count your foos", :multi => true
+
+      assert_raises Climate::DefinitionError do
+        @subject.arg "bar", "before they bar"
       end
     end
   end

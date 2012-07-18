@@ -3,10 +3,16 @@ module Climate
   module ParsingMethods
 
     def arg(*args)
-      raise DefinitionError, "can not define a required argument after an " +
-        "optional one" if cli_arguments.any?(&:optional?)
 
-      cli_arguments << Argument.new(*args)
+      arg = Argument.new(*args)
+
+      raise DefinitionError, "can not define more arguments after a multi " +
+        " argument" if cli_arguments.any?(&:multi?)
+
+      raise DefinitionError, "can not define a required argument after an " +
+        "optional one" if cli_arguments.any?(&:optional?) && arg.required?
+
+      cli_arguments << arg
     end
 
     def opt(*args)
@@ -41,16 +47,35 @@ module Climate
       trollop_parser.educate(out)
     end
 
-    def check_arguments(args, command=self)
+    def parse_arguments(args, command=self)
 
-      if args.size > cli_arguments.size
-        raise UnexpectedArgumentError.new("#{args.size} for #{cli_arguments.size}", command)
+      arg_list = cli_arguments
+
+      if arg_list.none?(&:multi?) && args.size > arg_list.size
+        raise UnexpectedArgumentError.new("#{args.size} for #{arg_list.size}", command)
       end
 
-      cli_arguments.zip(args).map do |argument, arg_value|
-        if argument.required? && (arg_value.nil? || arg_value.empty?)
+      # mung the last arguments to appear as one for multi args, this is fairly
+      # ugly - thank heavens for unit tests
+      if arg_list.last && arg_list.last.multi?
+        multi_arg = arg_list.last
+        last_args = args[(arg_list.size - 1)..-1] || []
+
+        # depending on the number of args that were supplied, you may get nil
+        # or an empty array because of how slicing works, either way we want nil
+        # if no args were supplied so `required?` detection works below
+        args = args[0...(arg_list.size - 1)] +
+          [last_args.empty?? nil : last_args].compact
+      end
+
+      arg_list.zip(args).map do |argument, arg_value|
+
+        if argument.required? && arg_value.nil?
           raise MissingArgumentError.new(argument.name, command)
         end
+
+        # empty list is nil for multi arg
+        arg_value = [] if argument.multi? && arg_value.nil?
 
         # no arg given is different to an empty arg
         if arg_value.nil?
@@ -79,7 +104,7 @@ module Climate
         if @stop_on
           [[], parser.leftovers]
         else
-          [self.check_arguments(parser.leftovers), []]
+          [self.parse_arguments(parser.leftovers), []]
         end
 
       [arguments, options, leftovers]

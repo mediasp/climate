@@ -8,13 +8,17 @@ module Climate
       @name        = name
       @description = description
       @required    = options.fetch(:required, true)
+      @multi       = options.fetch(:multi, false)
     end
 
     def required? ; @required   ; end
     def optional? ; ! required? ; end
+    def multi?    ; @multi      ; end
 
     def usage
       string = "<#{name}>"
+
+      string += '...' if multi?
 
       if optional?
         "[#{string}]"

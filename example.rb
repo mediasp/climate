@@ -12,11 +12,12 @@ Implements a contrived cli for querying and updating a yaml config file.
 DESC
 
     opt  :log,         'Whether to log to stdout', :default => false
-    opt  :config_file, 'Path to config file',      :default => 'config_file', :type => :string,
-    :short => 'f'
+    opt  :config_file, 'Path to config file',      :type => :string,
+    :short => 'f', :required => true
 
     opt  :create,      'Create the config file if it is missing',
     :default => false
+
   end
 
   module Common
@@ -29,7 +30,7 @@ DESC
         if parent.options[:create]
           File.open(filename, 'w') {|f| YAML.dump({}, f) }
         else
-          raise Climate::ExitException.new(self, "No config file: #{filename}")
+          raise Climate::ExitException.new("No config file: #{filename}")
         end
 
       end
@@ -57,17 +58,17 @@ Here is another paragraph explaining that you can show a value or multiple
 values that exist in the config file by supplying or not supplying an argument
 DESC
 
-    arg :key, 'config key to show', :required => false
+    arg :keys, 'one or more config keys to show', :required => false,
+    :multi => true
 
     def run
       yaml = config_yaml
 
-      if key = arguments[:key]
+      keys = arguments[:keys]
+      keys = yaml.keys.sort if keys.empty?
+
+      keys.each do |key|
         stdout.puts("#{key}: #{yaml[key]}")
-      else
-        yaml.keys.sort.each do |key|
-          stdout.puts("#{key}: #{yaml[key]}")
-        end
       end
     end
   end

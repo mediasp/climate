@@ -93,6 +93,8 @@ module Climate
       rescue Trollop::CommandlineError => e
         if (m = /unknown argument '(.+)'/.match(e.message))
           raise UnexpectedArgumentError.new(m[1], command)
+        elsif (m = /option (.+) must be specified/.match(e.message))
+          raise MissingArgumentError.new(m[1], command)
         else
           raise
         end

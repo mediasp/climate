@@ -206,7 +206,7 @@ describe Climate::Parser do
       end
 
       it "raises an error if you do not supply the required options" do
-        assert_raises Trollop::CommandlineError do
+        assert_raises Climate::MissingArgumentError do
           @subject.parse ["/tmp"]
         end
       end

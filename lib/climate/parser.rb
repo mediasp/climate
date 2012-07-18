@@ -104,7 +104,7 @@ module Climate
       # lets keep it one or t'other
       arguments, leftovers =
         if @stop_on
-          [[], parser.leftovers]
+          [{}, parser.leftovers]
         else
           [self.parse_arguments(parser.leftovers), []]
         end

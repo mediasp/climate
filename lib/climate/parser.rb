@@ -44,12 +44,12 @@ module Climate
     def check_arguments(args, command=self)
 
       if args.size > cli_arguments.size
-        raise UnexpectedArgumentError.new(command, "#{args.size} for #{cli_arguments.size}")
+        raise UnexpectedArgumentError.new("#{args.size} for #{cli_arguments.size}", command)
       end
 
       cli_arguments.zip(args).map do |argument, arg_value|
         if argument.required? && (arg_value.nil? || arg_value.empty?)
-          raise MissingArgumentError.new(command, argument.name)
+          raise MissingArgumentError.new(argument.name, command)
         end
 
         # no arg given is different to an empty arg
@@ -61,9 +61,17 @@ module Climate
       end.inject {|a,b| a.merge(b) } || {}
     end
 
-    def parse(arguments)
+    def parse(arguments, command=self)
       parser = self.trollop_parser
-      options = parser.parse(arguments)
+      begin
+        options = parser.parse(arguments)
+      rescue Trollop::CommandlineError => e
+        if (m = /unknown argument '(.+)'/.match(e.message))
+          raise UnexpectedArgumentError.new(m[1], command)
+        else
+          raise
+        end
+      end
 
       # it would get weird if we allowed arguments alongside options, so
       # lets keep it one or t'other

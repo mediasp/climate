@@ -10,6 +10,10 @@ module Climate
     rescue HelpNeeded => e
       print_usage(e.command_class)
       exit(0)
+    rescue UnexpectedArgumentError => e
+      $stderr.puts("Unknown argument: #{e.message}")
+      print_usage(e.command_class)
+      exit(1)
     rescue UnknownCommandError => e
       $stderr.puts("Unknown command: #{e.message}")
       print_usage(e.command_class)

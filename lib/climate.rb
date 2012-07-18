@@ -6,7 +6,7 @@ module Climate
       yield
     rescue ExitException => e
       $stderr.puts(e.message)
-      exit(e.exitcode)
+      exit(e.exit_code)
     rescue HelpNeeded => e
       print_usage(e.command_class)
       exit(0)

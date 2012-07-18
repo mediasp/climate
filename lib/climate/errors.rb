@@ -23,7 +23,7 @@ module Climate
 
     attr_reader :exit_code
     # some libraries (popen, process?) refer to this as exitcode without a _
-    alias :exitcode :exit_code
+    alias :exitstatus :exit_code
 
     def initialize(msg, exit_code=1)
       @exit_code = exit_code

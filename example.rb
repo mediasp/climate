@@ -18,6 +18,10 @@ DESC
     opt  :create,      'Create the config file if it is missing',
     :default => false
 
+    opt :value,        'Override a config file value on the command line.  ' +
+      'Separate keys and values with an equals sign, so --value key=value',
+    :multi => true, :type => :string
+
   end
 
   module Common
@@ -35,7 +39,10 @@ DESC
 
       end
 
-      YAML.load_file(filename)
+      YAML.load_file(filename).tap do |values|
+        cli_values = ancestor(Parent).options[:value]
+        cli_values.map {|v| v.split('=') }.each {|k,v| values[k] = v }
+      end
     end
 
     def save_config(hash)

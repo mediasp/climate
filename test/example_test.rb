@@ -144,6 +144,13 @@ describe 'example.rb' do
       assert_equal 0, last_status.exitstatus
       assert_match "fave_book: wuthering heights\nfave_animal: llama", last_stdout
     end
+
+    it 'can take multiple --value options to override config values' do
+      run_example "--value=fave_book=boy --value=fave_meal=toast show"
+      assert_equal 0, last_status.exitstatus, last_stderr
+      assert_match "fave_book: boy", last_stdout
+      assert_match "fave_meal: toast", last_stdout
+    end
   end
 
 end

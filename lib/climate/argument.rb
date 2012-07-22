@@ -17,14 +17,8 @@ module Climate
 
     def usage
       string = "<#{name}>"
-
       string += '...' if multi?
-
-      if optional?
-        "[#{string}]"
-      else
-        string
-      end
+      optional??  "[#{string}]" : string
     end
 
     def formatted

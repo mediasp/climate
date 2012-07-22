@@ -1,0 +1,8 @@
+#! /usr/bin/env ruby
+
+require 'climate'
+require 'climate/help/man'
+
+Climate.with_standard_exception_handling do
+  Climate::Help::Man::Script.run(ARGV)
+end

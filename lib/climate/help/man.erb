@@ -1,0 +1,52 @@
+.TH <%= full_name %> 1 "<%= date %>" "<%= full_name %> Manual"
+.SH "NAME"
+.P
+<%= full_name %> - <%= short_description %>
+
+.SH "SYNOPSIS"
+
+.P
+.I
+<%= full_name %>
+<%- if has_options? -%>
+  <%= cli_options.map(&:usage).join(' ') %>
+<%- end -%>
+<%- if has_subcommands? -%><command> [<arguments>...]
+<%- else -%><%= cli_arguments.map(&:usage).join(' ') %> <%- end -%>
+
+.SH "DESCRIPTION"
+<%- paragraphs.each do |p| -%>
+.P
+<%= p %>
+<%- end -%>
+
+<%- if has_options? || has_arguments? || has_subcommands? -%>
+.SH "OPTIONS"
+
+  <%- if has_subcommands? -%>
+.IP <command>  0.4i
+.br
+Command to execute.  See SUBCOMMANDS for more information.
+  <%- elsif has_arguments? -%>
+    <%- cli_arguments.each do |arg| -%>
+.IP <%= arg.usage %>  0.4i
+.br
+<%= arg.description %>
+    <%- end -%>
+  <%- end -%>
+
+  <%- cli_options.each do |opt| -%>
+.IP "<%= opt.usage :hide_optional => true, :with_long => true, :separator => ', ' %>" 0.4i
+.br
+<%= opt.description %>
+  <%- end -%>
+<%- end -%>
+
+
+<%- if has_subcommands? -%>
+.SH "SUBCOMMANDS"
+  <%- subcommands.each do |subcommand| -%>
+.IP <%= subcommand.short_name %> 0.4i
+ <%= subcommand.short_description %>
+  <%- end -%>
+<%- end -%>

@@ -153,4 +153,23 @@ describe 'example.rb' do
     end
   end
 
+  describe 'man page output' do
+
+    # Could do some assertions on the output, but that is a lot of effort -
+    # let's just check it exits properly
+
+    it 'can create a man page for the parent command' do
+      run_cmd "ruby -rrubygems -Ilib -rexample bin/climate-man Example::Parent"
+      assert_equal 0, last_status.exitstatus, last_stderr
+    end
+
+    it 'can create a man page for the child commands' do
+      run_cmd "ruby -rrubygems -Ilib -rexample bin/climate-man Example::Show"
+      assert_equal 0, last_status.exitstatus, last_stderr
+
+      run_cmd "ruby -rrubygems -Ilib -rexample bin/climate-man Example::Set"
+      assert_equal 0, last_status.exitstatus, last_stderr
+    end
+  end
+
 end

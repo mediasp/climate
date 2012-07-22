@@ -16,35 +16,28 @@ module Climate
     def short   ; spec[:short]   ; end
     def default ; spec[:default] ; end
 
-    def optional?
-      spec.has_key?(:default)
-    end
+    def optional? ; spec.has_key?(:default) ; end
+    def required? ; ! optional?             ; end
 
-    def required? ; ! optional? ; end
+    def spec ; @specs ||= parser.specs[@name] ; end
 
     def parser
       @parser ||= Trollop::Parser.new.tap {|p| add_to(p) }
     end
 
-    def spec
-      @specs ||= parser.specs[@name]
+    def long_usage
+      type == :flag ? "--#{long}" : "--#{long}=<#{type}>"
+    end
+
+    def short_usage
+      short && (type == :flag ? "-#{short}" : "-#{short}<#{type}>")
     end
 
     def usage(options={})
-      help =
-        if type == :flag
-          "-#{short}"
-        else
-          "-#{short}<#{type}>"
-        end
+      help = short_usage || long_usage
 
-      if options[:with_long]
-        help = help + options.fetch(:separator, '|') +
-          if type == :flag
-            "--#{long}"
-          else
-            "--#{long}=<#{type}>"
-          end
+      if options[:with_long] && (long_usage != help)
+        help = [help, long_usage].compact.join(options.fetch(:separator, '|'))
       end
 
       if optional? && !options.fetch(:hide_optional, false)

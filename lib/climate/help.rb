@@ -21,7 +21,7 @@ module Climate
       opts_usage = command_class.cli_options.map {|opt| opt.usage }
       args_usage =
         if command_class.has_subcommands?
-          ["<subcommand> [<arguments>]"]
+          ["<subcommand> [<arguments>...]"]
         else
           command_class.cli_arguments.map {|arg| arg.usage }
         end

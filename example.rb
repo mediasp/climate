@@ -107,6 +107,8 @@ DESC
   end
 end
 
-Climate.with_standard_exception_handling do
-  Example::Parent.run(ARGV)
+if $PROGRAM_NAME == __FILE__
+  Climate.with_standard_exception_handling do
+    Example::Parent.run(ARGV)
+  end
 end

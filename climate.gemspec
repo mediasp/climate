@@ -21,5 +21,5 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency('yard')
   s.add_development_dependency('popen4')
 
-  s.files = Dir.glob("lib/**/*.rb") + ['README']
+  s.files = Dir.glob("lib/**/*.rb") + ['README.md']
 end

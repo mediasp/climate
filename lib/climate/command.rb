@@ -47,6 +47,13 @@ module Climate
         @name
       end
 
+      # because we've extended Class.name, we expose the original method
+      # under another name
+      # FIXME: surely there is a saner way of doing this?
+      def class_name
+        Class.method(:name).unbind.bind(self).call
+      end
+
       # Register this class as being a subcommand of another {Command} class
       # @param [Command] parent_class The parent we hang off of
       def subcommand_of(parent_class)

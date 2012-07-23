@@ -20,6 +20,9 @@ class Climate::Help
       opt :out_file, "Name of a file to write nroff output to.  Defaults to stdout",
       :type => :string, :required => false
 
+      opt :template, "Path to an alternative template to use.  The default " +
+        "produces output for man/nroff, but you can change it to whatever " +
+        "you like", :required => false, :type => :string
 
       def run
         out_file = (of = options[:out_file]) && File.open(of, 'w') || $stdout
@@ -27,7 +30,11 @@ class Climate::Help
         command_class = arguments[:command_class].split('::').
           inject(Object) {|m,v| m.const_get(v) }
 
-        Man.new(command_class, :output => out_file).print
+        template_file = options[:template] || File.join(
+          File.dirname(__FILE__), 'man.erb')
+
+        Man.new(command_class, :output => out_file,
+          :template_file => template_file).print
       end
     end
 
@@ -88,10 +95,11 @@ class Climate::Help
     def initialize(command_class, options={})
       @command_class = command_class
       @output = options[:output] || $stdout
+      @template_file = options[:template_file]
     end
 
     def print
-      template = Erubis::Eruby.new(File.read(File.join(File.dirname(__FILE__), 'man.erb')))
+      template = Erubis::Eruby.new(File.read(@template_file))
       presenter = Presenter.new(command_class)
       @output.puts(template.result(presenter.binding))
     end

@@ -1,6 +1,7 @@
 require 'test/helpers'
 require 'popen4'
 require 'fileutils'
+require 'tempfile'
 
 describe 'example.rb' do
 
@@ -169,6 +170,24 @@ describe 'example.rb' do
 
       run_cmd "ruby -rrubygems -Ilib -rexample bin/climate-man Example::Set"
       assert_equal 0, last_status.exitstatus, last_stderr
+    end
+
+    it 'can be given a path to a different template to use' do
+      template = Tempfile.new('template')
+      begin
+        template.write <<EOF
+This template is silly
+EOF
+        template.flush
+
+        run_cmd "ruby -rrubygems -Ilib -rexample bin/climate-man" +
+          " --template=#{template.path} Example::Set"
+        assert_equal 0, last_status.exitstatus
+        assert_match 'This template is silly', last_stdout
+
+      ensure
+        template.close
+      end
     end
   end
 

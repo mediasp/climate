@@ -163,5 +163,11 @@ module Climate
         parent.ancestor(ancestor_class)
       end
     end
+
+    # Run the command, must be implemented by all commands that are not parent
+    # commands (leaf commands)
+    def run
+      raise NotImplementedError, "Leaf commands must implement a run method"
+    end
   end
 end

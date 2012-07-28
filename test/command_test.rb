@@ -81,6 +81,18 @@ EOF
 
   describe '.run' do
 
+    describe 'when the command does not define a run method (climate#1)' do
+      it 'will raise a NotImplementedError' do
+        example = Class.new(Climate::Command) do
+          name 'example'
+        end
+
+        assert_raises NotImplementedError do
+          example.run([])
+        end
+      end
+    end
+
     describe 'with a basic command' do
       it 'will instantiate an instance of the command and run it using the ' +
         'provided arguments' do

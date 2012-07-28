@@ -101,7 +101,7 @@ module Climate
     end
 
     def puts(string='')
-      string.split("\n").each do |line|
+      wrap(string).split("\n").each do |line|
         @output.puts((' ' * spaces) + line)
       end
     end
@@ -129,7 +129,7 @@ module Climate
 
       string.split("\n\n").map { |para|
 
-        words = para.split(/[\n ]/)
+        words = para.split(/[\n ]+/)
         words[1..-1].inject([words.first]) { |m, v|
           new_last_line = m.last + " " + v
 

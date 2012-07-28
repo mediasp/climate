@@ -1,4 +1,5 @@
 require 'test/helpers'
+require 'stringio'
 
 describe Climate::Command do
 
@@ -58,6 +59,24 @@ describe Climate::Command do
   end
 
   describe '.help' do
+    it 'Changes single newlines in to spaces and collapses space (climate#2)' do
+      example_class = Class.new(Climate::Command) do
+        name 'example'
+        description <<EOF
+this    should be
+on one   line.
+
+But this is a new   paragraph.
+EOF
+      end
+
+      stringio = StringIO.new('')
+      help = Climate::Help.new(example_class, :output => stringio)
+      help.print_description
+
+      assert_equal "\nDescription\n    this should be on one line.\n    \n    But this is a new paragraph.\n",
+      stringio.string
+    end
   end
 
   describe '.run' do

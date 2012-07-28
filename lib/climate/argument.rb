@@ -20,9 +20,5 @@ module Climate
       string += '...' if multi?
       optional??  "[#{string}]" : string
     end
-
-    def formatted
-       required?? name.to_s.upcase : "[#{name.to_s.upcase}]"
-    end
   end
 end

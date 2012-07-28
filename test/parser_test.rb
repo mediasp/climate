@@ -241,7 +241,7 @@ describe Climate::Parser do
       assert arg
       assert_equal "number of cats", arg.description
       assert_equal true, arg.required?
-      assert_equal "CAT_COUNT", arg.formatted
+      assert_equal "<cat_count>", arg.usage
     end
 
     it "lets you declare multiple cli arguments, remembering the order in which they " +
@@ -258,7 +258,7 @@ describe Climate::Parser do
       arg = @subject.send(:cli_arguments).find {|h| h.name == "log" }
       assert arg
       assert_equal false, arg.required?
-      assert_equal "[LOG]", arg.formatted
+      assert_equal "[<log>]", arg.usage
     end
 
     it "raises an error if you try to declare a required argument after an " +

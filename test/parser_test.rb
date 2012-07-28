@@ -234,35 +234,6 @@ describe Climate::Parser do
     end
   end
 
-  describe "#help_banner" do
-
-    before do
-      @subject.instance_eval do
-        opt "log_stdout", "log to stdout", :default => false
-        opt "num_peaches", "peach count", :short => 'p', :default => 0
-
-        opt "num_splines", "how many splines", :type => Integer,
-        :required => true
-
-        arg "path", "path to file"
-        arg "output_host", "optional hose", :required => false
-      end
-    end
-
-    it "outputs some useful output :)" do
-      stringio = StringIO.new
-      @subject.help_banner(stringio)
-      output = stringio.string
-
-      assert_match /path.+path to file/, output
-      assert_match /output_host.+optional hose/, output
-      assert_match /--log-stdout.+log to stdout/, output
-      assert_match /--num-peaches.+-p.+peach count/, output
-      assert_match /--num-splines.+.+how many splines/, output
-    end
-
-  end
-
   describe "#cli_argument" do
     it "lets you declare a cli argument" do
       @subject.arg "cat_count", "number of cats"

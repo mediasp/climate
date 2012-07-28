@@ -3,7 +3,6 @@ module Climate
   module ParsingMethods
 
     def arg(*args)
-
       arg = Argument.new(*args)
 
       raise DefinitionError, "can not define more arguments after a multi " +
@@ -28,23 +27,10 @@ module Climate
 
       parser.stop_on @stop_on
 
-      if cli_arguments.size > 0
-        parser.banner ""
-        max_length = cli_arguments.map { |h| h.name.to_s.length }.max
-        cli_arguments.each do |argument|
-          parser.banner("  " + argument.name.to_s.rjust(max_length) + " - #{argument.description}")
-        end
-      end
-
-      parser.banner ""
       cli_options.each do |option|
         option.add_to(parser)
       end
       parser
-    end
-
-    def help_banner(out=$stdout)
-      trollop_parser.educate(out)
     end
 
     def parse_arguments(args, command=self)

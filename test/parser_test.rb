@@ -259,6 +259,20 @@ describe Climate::Parser do
       assert arg
       assert_equal false, arg.required?
       assert_equal "[<log>]", arg.usage
+
+      args, _ = @subject.parse([])
+      assert_nil args['log']
+    end
+
+    it "lets you declare an optional argument with a default" do
+      @subject.arg "log", "Whether to log", :default => "true"
+      arg = @subject.cli_arguments.find {|h| h.name == "log" }
+      assert arg
+      assert_equal false, arg.required?
+      assert_equal 'true', arg.default
+
+      args, _ = @subject.parse([])
+      assert_equal 'true', args['log']
     end
 
     it "raises an error if you try to declare a required argument after an " +

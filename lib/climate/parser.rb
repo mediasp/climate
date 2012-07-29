@@ -55,7 +55,7 @@ module Climate
       end
 
       arg_list.zip(args).map do |argument, arg_value|
-
+        arg_value ||= argument.default
         if argument.required? && arg_value.nil?
           raise MissingArgumentError.new(argument.name, command)
         end

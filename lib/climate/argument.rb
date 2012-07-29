@@ -3,12 +3,14 @@ module Climate
 
     attr_reader :name
     attr_reader :description
+    attr_reader :default
 
     def initialize(name, description, options={})
       @name        = name
       @description = description
-      @required    = options.fetch(:required, true)
+      @required    = options.fetch(:required, ! options.has_key?(:default))
       @multi       = options.fetch(:multi, false)
+      @default     = options.fetch(:default, nil)
     end
 
     def required? ; @required   ; end

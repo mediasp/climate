@@ -1,5 +1,94 @@
 module Climate
 
+  # Keeps the description munging code in one place
+  module Described
+    attr_reader :name
+
+    def initialize(name, description, *rest)
+      @name        = name
+      @description = description
+    end
+
+    def description
+      (@description || '').gsub(/\{default\}/, default.to_s)
+    end
+  end
+
+  # Wraps the properties supplied to Trollop::Parser#opt for some OO over
+  # engineered sweetness
+  class Option
+    include Described
+    attr_reader :options
+
+    def initialize(name, description, options={})
+      @options     = options
+      super
+    end
+
+    def type    ; spec[:type]    ; end
+    def long    ; spec[:long]    ; end
+    def short   ; spec[:short]   ; end
+    def default ; spec[:default] ; end
+
+    def optional? ; spec.has_key?(:default) ; end
+    def required? ; ! optional?             ; end
+
+    def spec ; @specs ||= parser.specs[@name] ; end
+
+    def parser
+      @parser ||= Trollop::Parser.new.tap {|p| add_to(p) }
+    end
+
+    def long_usage
+      type == :flag ? "--#{long}" : "--#{long}=<#{type}>"
+    end
+
+    def short_usage
+      short && (type == :flag ? "-#{short}" : "-#{short}<#{type}>")
+    end
+
+    def usage(options={})
+      help = short_usage || long_usage
+
+      if options[:with_long] && (long_usage != help)
+        help = [help, long_usage].compact.join(options.fetch(:separator, '|'))
+      end
+
+      if optional? && !options.fetch(:hide_optional, false)
+        "[#{help}]"
+      else
+        help
+      end
+    end
+
+    def add_to(parser)
+      parser.opt(@name, @description, @options)
+    end
+  end
+
+  # argument definition is stored in these
+  class Argument
+    include Described
+    attr_reader :default
+
+    def initialize(name, description, options={})
+      super
+      @required    = options.fetch(:required, ! options.has_key?(:default))
+      @multi       = options.fetch(:multi, false)
+      @default     = options.fetch(:default, nil)
+    end
+
+    def required? ; @required   ; end
+    def optional? ; ! required? ; end
+    def multi?    ; @multi      ; end
+
+    def usage
+      string = "<#{name}>"
+      string += '...' if multi?
+      optional??  "[#{string}]" : string
+    end
+  end
+
   module ParsingMethods
 
     def arg(*args)
@@ -23,14 +112,13 @@ module Climate
     end
 
     def trollop_parser
-      parser = Trollop::Parser.new
+      Trollop::Parser.new.tap do |parser|
+        parser.stop_on @stop_on
 
-      parser.stop_on @stop_on
-
-      cli_options.each do |option|
-        option.add_to(parser)
+        cli_options.each do |option|
+          option.add_to(parser)
+        end
       end
-      parser
     end
 
     def parse_arguments(args, command=self)

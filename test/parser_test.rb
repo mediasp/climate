@@ -76,7 +76,7 @@ describe Climate::Parser do
     describe "with an option with a default" do
 
       before do
-        @subject.opt "foo", "foo time", :default => 'cats'
+        @subject.opt "foo", "foo time, defaults to {default}", :default => 'cats'
       end
 
       it "returns the default value if no foo option is supplied" do
@@ -97,6 +97,10 @@ describe Climate::Parser do
         assert_equal "totally-awesome", opts["foo"]
       end
 
+      it "can interpolate the default value for you" do
+        opt = @subject.cli_options.find {|o| o.name == 'foo' }
+        assert_equal "foo time, defaults to cats", opt.description
+      end
     end
 
     describe "with an option with a non-standard short form " do

@@ -105,6 +105,24 @@ DESC
       save_config(yaml)
     end
   end
+
+  class Echo < Climate::Command
+    include Common
+    name 'echo'
+    subcommand_of Parent
+
+    description <<DESC
+Contrived command that lets you view all args and options passed to it,
+unparsed.
+DESC
+
+    disable_parsing
+
+    def run
+      raise Climate::HelpNeeded, self if argv.include?('-h')
+      stdout.puts argv.inspect
+    end
+  end
 end
 
 if $PROGRAM_NAME == __FILE__

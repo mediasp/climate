@@ -154,6 +154,14 @@ describe 'example.rb' do
     end
   end
 
+  describe 'echo - disable_parsing example' do
+    it 'outputs any arguments you give it, but does not parse them' do
+      run_example "echo this --shizzle -blows my mind"
+      assert_equal 0, last_status.exitstatus, last_stderr
+      assert_match '["this", "--shizzle", "-blows", "my", "mind"]', last_stdout
+    end
+  end
+
   describe 'man page output' do
 
     # Could do some assertions on the output, but that is a lot of effort -

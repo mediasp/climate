@@ -14,11 +14,11 @@ module Climate
 
       # Create an instance of this command class and run it against the given
       # arguments
-      # @param [Array<String>] arguments A list of arguments, ARGV style
+      # @param [Array<String>] argv A list of arguments, ARGV style
       # @param [Hash] options see {#initialize}
-      def run(arguments, options={})
+      def run(argv, options={})
         begin
-          instance = new(arguments, options)
+          instance = new(argv, options)
         rescue Trollop::HelpNeeded
           raise HelpNeeded.new(self)
         end
@@ -70,6 +70,15 @@ module Climate
           @description
         end
       end
+
+      # Call this during class definition time if you don't want any of the
+      # usual command line parsing to happen
+      def disable_parsing
+        @parsing_disabled = true
+      end
+
+      # Returns true if parsing is disabled
+      attr_accessor :parsing_disabled
 
       # Set the parent of this command
       attr_accessor :parent
@@ -123,15 +132,23 @@ module Climate
     # @option options [IO] :stdout stream to use as stdout, defaulting to `$stdout`
     # @option options [IO] :stderr stream to use as stderr, defaulting to `$stderr`
     # @option options [IO] :stdin stream to use as stdin, defaulting to `$stdin`
-    def initialize(arguments, options={})
+    def initialize(argv, options={})
+      @argv = argv.clone
       @parent = options[:parent]
 
       @stdout = options[:stdout] || $stdout
       @stderr = options[:stderr] || $stderr
       @stdin =  options[:stdin]  || $stdin
 
-      @arguments, @options, @leftovers = self.class.parse(arguments)
+      if ! self.class.parsing_disabled
+        @arguments, @options, @leftovers = self.class.parse(argv)
+      end
     end
+
+    # @return [Array]
+    # The original list of unparsed argv style arguments that were given to
+    # the command
+    attr_accessor :argv
 
     # @return [Hash]
     # Options that were parsed from the command line

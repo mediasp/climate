@@ -81,6 +81,39 @@ EOF
 
   describe '.run' do
 
+    describe 'accessing raw argv' do
+
+      before do
+        @subject = Class.new(Climate::Command) do
+          name 'foo'
+
+          arg :things, 'lots of things', :multi => true
+          opt :count, 'counter', :type => :int
+
+          def run
+            self
+          end
+        end
+      end
+
+      it 'exposes the argument list unaltered past the command name' do
+        cmd = @subject.run ['this', 'is', 'a thing', '-c', '6']
+        assert_equal ['this', 'is', 'a thing', '-c', '6'], cmd.argv
+      end
+
+      it 'remembers the original and complete ARGV list' do
+        # cant think of a way to test this without launching a new process
+      end
+
+      it 'lets you disable normal parsing by specifying `disable_parsing`' do
+        @subject.disable_parsing
+        cmd = @subject.run ['this', 'is', 'a thing', '-c', '6', '--unknown']
+        assert_equal ['this', 'is', 'a thing', '-c', '6', '--unknown'], cmd.argv
+        assert_nil cmd.arguments
+        assert_nil cmd.options
+      end
+    end
+
     describe 'when the command does not define a run method (climate#1)' do
       it 'will raise a NotImplementedError' do
         example = Class.new(Climate::Command) do

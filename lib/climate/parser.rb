@@ -32,6 +32,7 @@ module Climate
 
     def optional? ; spec.has_key?(:default) ; end
     def required? ; ! optional?             ; end
+    def multi?    ; spec[:multi]            ; end
 
     def spec ; @specs ||= parser.specs[@name] ; end
 
@@ -56,6 +57,8 @@ module Climate
 
       if optional? && !options.fetch(:hide_optional, false)
         "[#{help}]"
+      elsif multi? && !options.fetch(:hide_optional, false)
+        "[#{help}...]"
       else
         help
       end

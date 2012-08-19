@@ -299,12 +299,37 @@ describe Climate::Parser do
   end
 
   describe "#cli_option" do
-    it "lets you declare an option with a name and a description" do
-      @subject.opt "foo", "whether to foo"
+    it "lets you declare a boolean/switch option with a name and a " +
+      "description and no default" do
+      @subject.opt "foo", "whether to foo", :short => 'f'
       opt = @subject.send(:cli_options).find {|o| o.name == "foo" }
       assert opt
       assert "foo", opt.name
-      assert "whether to foo", opt.description
+      assert_equal "whether to foo", opt.description
+      assert_equal "[-f]", opt.usage
     end
+
+    it "lets you declare an option with a name and a " +
+      "description and a default" do
+      @subject.opt "foo", "whether to foo", :short => 'f', :default => 'value'
+      opt = @subject.send(:cli_options).find {|o| o.name == "foo" }
+      assert opt
+      assert "foo", opt.name
+      assert_equal "whether to foo", opt.description
+      assert_equal "[-f <foo>]", opt.usage
+    end
+
+    it "lets you declare a multi option with a name and a " +
+      "description" do
+      @subject.opt "foo", "whether to foo", :short => 'f', :multi => true,
+      :type => :string
+
+      opt = @subject.send(:cli_options).find {|o| o.name == "foo" }
+      assert opt
+      assert "foo", opt.name
+      assert_equal "whether to foo", opt.description
+      assert_equal "[-f <foo>...]", opt.usage
+    end
+
   end
 end

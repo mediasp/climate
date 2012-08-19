@@ -22,6 +22,10 @@ module Climate
       $stderr.puts("Missing argument: #{e.message}")
       print_usage(e.command_class)
       exit(1)
+    rescue CommandError => e
+      $stderr.puts(e.message)
+      print_usage(e.command_class)
+      exit(1)
     rescue => e
       $stderr.puts("Unexpected error: #{e.class.name} - #{e.message}")
       $stderr.puts(e.backtrace)

@@ -173,7 +173,7 @@ module Climate
         elsif (m = /option (.+) must be specified/.match(e.message))
           raise MissingArgumentError.new(m[1], command)
         else
-          raise
+          raise CommandError.new(e.message, command)
         end
       end
 

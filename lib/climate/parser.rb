@@ -44,7 +44,7 @@ module Climate
     end
 
     def short_usage
-      short && (type == :flag ? "-#{short}" : "-#{short}<#{type}>")
+      short && (type == :flag ? "-#{short}" : "-#{short} <#{name}>")
     end
 
     def usage(options={})

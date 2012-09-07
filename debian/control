@@ -1,0 +1,14 @@
+Source: climate
+Section: ruby
+Priority: extra
+Maintainer: Nick Griffiths <nicobrevin@gmail.com>
+Build-Depends: debhelper (>= 8.0.0), ruby
+Standards-Version: 3.9.2
+Homepage: http://github.com/playlouder/climate
+
+Package: libclimate-ruby
+Architecture: all
+Depends: ruby
+Conflicts: libtrollop-ruby
+Description: climate for ruby
+ Climate - for building ruby apps with a command line interface

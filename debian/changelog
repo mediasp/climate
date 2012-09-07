@@ -1,0 +1,5 @@
+climate (0.4.0) stable; urgency=low
+
+  * First debian release
+
+ -- Nick Griffiths <nick@matai>  Tue, 07 Feb 2012 20:13:28 +0000

@@ -16,6 +16,6 @@ end
 task :install, :install_dir do |t, args|
   dir = args[:install_dir]
   dest_dir = File.join(dir, 'usr/lib/ruby/1.8')
-  cp_r('lib', dest_dir)
+  cp_r('lib/.', dest_dir)
   cp('debian/trollop-2.0.rb', File.join(dest_dir, 'trollop.rb'))
 end

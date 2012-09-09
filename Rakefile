@@ -18,4 +18,9 @@ task :install, :install_dir do |t, args|
   dest_dir = File.join(dir, 'usr/lib/ruby/1.8')
   cp_r('lib/.', dest_dir)
   cp('debian/trollop-2.0.rb', File.join(dest_dir, 'trollop.rb'))
+
+  bin_dir = File.join(dir, 'usr/bin')
+  cp('bin/climate', bin_dir)
+  sh "sed -i 's|/usr/bin/env ruby|/usr/bin/ruby|' #{bin_dir}/climate"
 end
+

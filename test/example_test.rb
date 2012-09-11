@@ -1,4 +1,4 @@
-require 'test/helpers'
+require 'helpers'
 require 'popen4'
 require 'fileutils'
 require 'tempfile'

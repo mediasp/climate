@@ -195,6 +195,18 @@ module Climate
     def has_options? ;     not cli_options.empty?   ; end
     def has_arguments? ;   not cli_arguments.empty? ; end
 
+    def has_argument?(name)
+      cli_arguments.map(&:name).include?(name)
+    end
+
+    def has_required_argument?(name)
+      cli_arguments.select(&:required?).map(&:name).include?(name)
+    end
+
+    def has_multi_argument?(name)
+      cli_arguments.select(&:multi?).map(&:name).include?(name)
+    end
+
   end
 
   class Parser

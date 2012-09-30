@@ -1,4 +1,4 @@
-require 'test/helpers'
+require 'helpers'
 require 'stringio'
 
 describe Climate::Parser do

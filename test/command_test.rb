@@ -10,6 +10,20 @@ describe Climate::Command do
     STASH.clear
   end
 
+  it "lets you define a new command class by extending the result of the Command function" do
+    dogs = Climate::Command('dogs') do
+      opt :foo, 'foo'
+    end
+
+    cats = Climate::Command('cats') do
+      opt :bar, 'bar'
+    end
+
+    assert dogs != cats
+    assert_equal 'dogs', dogs.command_name
+    assert_equal 'cats', cats.command_name
+  end
+
   it "will not let you mix arguments with subcommands" do
     assert_raises Climate::DefinitionError do
       Class.new(Climate::Command) do
@@ -28,7 +42,7 @@ describe Climate::Command do
 
   it 'lets the child command add itself to a parent' do
     child = Class.new(Climate::Command) do
-      name 'child'
+      set_name 'child'
       subcommand_of ParentCommandFoo
 
       def run ; STASH[:ran] = true ;  end
@@ -38,14 +52,20 @@ describe Climate::Command do
     assert STASH[:ran]
   end
 
+  it 'lets you define a command class using the Command function to set the ' +
+    'name of the command' do
+    command = Climate::Command('do_stuff')
+    assert_equal 'do_stuff', command.command_name
+  end
+
   class ParentCommandFoo < Climate::Command
-    name 'parent'
+    set_name 'parent'
     description 'Parent command that does so many things, it is truly wonderful'
     opt 'log', 'whether to log', :default => false
   end
 
   class ExampleCommandFoo < Climate::Command
-    name  'example'
+    set_name  'example'
     subcommand_of ParentCommandFoo
     description 'This command is an example to all other commands'
     opt 'num_tanks', 'how many tanks', :default => 1
@@ -61,7 +81,7 @@ describe Climate::Command do
   describe '.help' do
     it 'Changes single newlines in to spaces and collapses space (climate#2)' do
       example_class = Class.new(Climate::Command) do
-        name 'example'
+        set_name 'example'
         description <<EOF
 this    should be
 on one   line.
@@ -85,7 +105,7 @@ EOF
 
       before do
         @subject = Class.new(Climate::Command) do
-          name 'foo'
+          set_name 'foo'
 
           arg :things, 'lots of things', :multi => true
           opt :count, 'counter', :type => :int
@@ -117,7 +137,7 @@ EOF
     describe 'when the command does not define a run method (climate#1)' do
       it 'will raise a NotImplementedError' do
         example = Class.new(Climate::Command) do
-          name 'example'
+          set_name 'example'
         end
 
         assert_raises NotImplementedError do
@@ -139,7 +159,7 @@ EOF
       it 'will supply a missing command_class to any CommandError that ' +
         'is raised' do
         command_class = Class.new(Climate::Command) do
-          name 'test'
+          set_name 'test'
 
           def run
             raise Climate::ExitException, 'too many oranges'
@@ -172,7 +192,7 @@ EOF
 
       it 'will supply a missing command_class to a CommandError that is raised' do
         command_class = Class.new(Climate::Command) do
-          name 'test'
+          set_name 'test'
           subcommand_of ParentCommandFoo
 
           def run
@@ -192,7 +212,7 @@ EOF
 
       before do
         @example = Class.new(Climate::Command) do
-          name 'test'
+          set_name 'test'
           arg :required_argument, "A required argument"
           arg :optional_argument, "An optional argument", :required => false
           arg :multiple_argument, "An argument with multiple values", :multi => true, :required => false
@@ -241,7 +261,7 @@ EOF
 
       before do
         @parent = Class.new(Climate::Command) do
-          name 'parent'
+          set_name 'parent'
         end
         parent = @parent # OUCH! Class.new evals the block in the context of the
                          # class object itself, so instance vars in the enclosing
@@ -249,11 +269,11 @@ EOF
                          # though, so this allows us to refer to the parent
                          # within the class definition below
         @child = Class.new(Climate::Command) do
-          name 'child'
+          set_name 'child'
           subcommand_of parent
         end
         @orphan = Class.new(Climate::Command) do
-          name 'orphan'
+          set_name 'orphan'
         end
       end
 

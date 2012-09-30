@@ -3,8 +3,7 @@ require 'yaml'
 
 module Example
 
-  class Parent < Climate::Command
-    name 'example'
+  class Parent < Climate::Command('example')
     description <<DESC
 Example app to show usage of subcommands.
 
@@ -59,9 +58,8 @@ DESC
     end
   end
 
-  class Show < Climate::Command
+  class Show < Climate::Command('show')
     include Common
-    name 'show'
     subcommand_of Parent
 
     description <<DESC
@@ -86,9 +84,8 @@ DESC
     end
   end
 
-  class Set < Climate::Command
+  class Set < Climate::Command('set')
     include Common
-    name 'set'
     subcommand_of Parent
     description <<DESC
 Set a configuration value.
@@ -112,9 +109,8 @@ DESC
     end
   end
 
-  class Echo < Climate::Command
+  class Echo < Climate::Command('echo')
     include Common
-    name 'echo'
     subcommand_of Parent
 
     description <<DESC

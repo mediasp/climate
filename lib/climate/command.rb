@@ -1,5 +1,20 @@
 module Climate
 
+  # Create a new sub-class of Command with the given name.  You can either
+  # extend this class in the traditional `class MyCommand < Command('bob') way`
+  # or you can define the class using class_eval by passing a block.
+  def self.Command(name, &block)
+    Class.new(Command).tap do |clazz|
+      clazz.instance_eval """
+  def command_name
+    '#{name}'
+  end
+"""
+
+      clazz.class_eval(&block) if block_given?
+    end
+  end
+
   #
   # A {Command} is a unit of work, intended to be invoked from the command line.  It should be
   # extended to either do something itself by implementing run, or just be
@@ -41,23 +56,21 @@ module Climate
         parent.nil?? our_list : parent.ancestors + our_list
       end
 
-      # Supply a name for this command, or return the existing name
-      def name(name=nil)
-        @name = name if name
-        @name
+      # Set the name of this command, use if you don't want to use the class
+      # function to define your command
+      def set_name(command_name)
+        @name = command_name
       end
 
-      # because we've extended Class.name, we expose the original method
-      # under another name
-      # FIXME: surely there is a saner way of doing this?
-      def class_name
-        Class.method(:name).unbind.bind(self).call
+      # Return the name of the command
+      def command_name
+        @name
       end
 
       # Register this class as being a subcommand of another {Command} class
       # @param [Command] parent_class The parent we hang off of
       def subcommand_of(parent_class)
-        raise DefinitionError, 'can not set subcommand before name' unless @name
+        raise DefinitionError, 'can not set subcommand before name' unless command_name
         parent_class.add_subcommand(self)
       end
 
@@ -91,7 +104,7 @@ module Climate
         if cli_arguments.empty?
           subcommands << subcommand
           subcommand.parent = self
-          stop_on(subcommands.map(&:name))
+          stop_on(subcommands.map(&:command_name))
         else
           raise DefinitionError, 'can not mix subcommands with arguments'
         end
@@ -118,11 +131,11 @@ module Climate
         command_name, *arguments = parent.leftovers
 
         if command_name.nil?
-          raise MissingArgumentError.new("command #{parent.class.name}" +
+          raise MissingArgumentError.new("command #{parent.class.command_name}" +
             " expects a subcommand as an argument", parent)
         end
 
-        found = subcommands.find {|c| c.name == command_name }
+        found = subcommands.find {|c| c.command_name == command_name }
 
         if found
           found.run(arguments, options.merge(:parent => parent))

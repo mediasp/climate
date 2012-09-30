@@ -10,8 +10,7 @@ class Climate::Help
   class Man
 
     # Eat my own dog food
-    class Script < Climate::Command
-      name 'man'
+    class Script < Climate::Command('man')
       description 'Creates man/nroff output for a command'
 
       arg :command_class, "name of class that defines the command, i.e. Foo::Bar::Command",
@@ -58,7 +57,7 @@ class Climate::Help
         stack = []
         command_ptr = command_class
         while command_ptr
-          stack.unshift(command_ptr.name)
+          stack.unshift(command_ptr.command_name)
           command_ptr = command_ptr.parent
         end
 
@@ -66,7 +65,7 @@ class Climate::Help
       end
 
       def short_name
-        command_class.name
+        command_class.command_name
       end
 
       def date         ; Date.today.strftime('%b, %Y') ; end

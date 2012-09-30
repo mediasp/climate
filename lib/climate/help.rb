@@ -18,7 +18,7 @@ module Climate
     end
 
     def print_usage
-      ancestor_list = command_class.ancestors.map(&:name).join(' ')
+      ancestor_list = command_class.ancestors.map(&:command_name).join(' ')
       opts_usage = command_class.cli_options.map {|opt| opt.usage }
       args_usage =
         if command_class.has_subcommands?
@@ -42,7 +42,7 @@ module Climate
       puts "Available subcommands:"
       indent do
         command_class.subcommands.each do |subcommand_class|
-          puts "#{subcommand_class.name}"
+          puts "#{subcommand_class.command_name}"
         end
       end
     end

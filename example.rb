@@ -11,11 +11,11 @@ Example app to show usage of subcommands.
 Implements a contrived cli for querying and updating a yaml config file.
 DESC
 
-    opt  :log,         'Whether to log to stdout', :default => false
+    opt  :log,         'Whether to log to stderr, defaults to {default}', :default => false
     opt  :config_file, 'Path to config file',      :type => :string,
     :short => 'f', :required => true
 
-    opt  :create,      'Create the config file if it is missing',
+    opt  :create,      'Create the config file if it is missing, defaults to {default}',
     :default => false
 
     opt :value,        'Override a config file value on the command line.  ' +
@@ -26,19 +26,24 @@ DESC
 
   module Common
 
+    def log(message)
+      stderr.puts("log: #{message}") if ancestor(Parent).options[:log]
+    end
+
     def config_yaml
       parent = ancestor(Parent)
       filename = parent.options[:config_file]
 
       if not File.exists?(filename)
+        log("Creating empty config file #{filename}")
         if parent.options[:create]
           File.open(filename, 'w') {|f| YAML.dump({}, f) }
         else
           raise Climate::ExitException.new("No config file: #{filename}")
         end
-
       end
 
+      log("Loading config from #{filename}")
       YAML.load_file(filename).tap do |values|
         cli_values = ancestor(Parent).options[:value]
         cli_values.map {|v| v.split('=') }.each {|k,v| values[k] = v }
@@ -49,6 +54,7 @@ DESC
       parent = ancestor(Parent)
       filename = parent.options[:config_file]
 
+      log("Saving config to #{filename}")
       File.open(filename, 'w') {|f| YAML.dump(hash, f) }
     end
   end

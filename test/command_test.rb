@@ -187,8 +187,10 @@ EOF
         end
       end
     end
+
     describe "testing that an argument with certain properties is expected" do
-      before(:all) do
+
+      before do
         @example = Class.new(Climate::Command) do
           name 'test'
           arg :required_argument, "A required argument"
@@ -196,18 +198,22 @@ EOF
           arg :multiple_argument, "An argument with multiple values", :multi => true, :required => false
         end
       end
+
       describe "has_argument?" do
         it 'returns true when the named argument is defined' do
           assert @example.has_argument?(:optional_argument)
         end
+
         it 'returns false when the named arguement is not defined' do
           refute @example.has_argument?(:nonexistent_argument)
         end
       end
+
       describe "has_required_argument?" do
         it 'returns true when the named argument is defined and required' do
           assert @example.has_required_argument?(:required_argument)
         end
+
         it 'returns false when the named argument is defined and not required' do
           refute @example.has_required_argument?(:optional_argument)
         end
@@ -216,10 +222,12 @@ EOF
           refute @example.has_required_argument?(:nonexistent_argument)
         end
       end
+
       describe "has_multi_argument?" do
         it 'returns true when the named argument is defined and takes multiple values' do
           assert @example.has_multi_argument?(:multiple_argument)
         end
+
         it 'returns false when the named argument is defined and not multiple' do
           refute @example.has_multi_argument?(:optional_argument)
         end

@@ -238,13 +238,16 @@ EOF
       end
     end
     describe "testing that a command is a subcommand of some other command" do
-      before(:all) do
+
+      before do
         @parent = Class.new(Climate::Command) do
           name 'parent'
         end
-        parent = @parent # OUCH! Class.new evals the block in the context of the class object itself, so instance vars in
-                         # the enclosing scope aren't accessible. Locals are lexically scoped though, so this allows us
-                         # to refer to the parent within the class definition below
+        parent = @parent # OUCH! Class.new evals the block in the context of the
+                         # class object itself, so instance vars in the enclosing
+                         # scope aren't accessible. Locals are lexically scoped
+                         # though, so this allows us to refer to the parent
+                         # within the class definition below
         @child = Class.new(Climate::Command) do
           name 'child'
           subcommand_of parent
@@ -258,6 +261,7 @@ EOF
         it "returns true when the command's subcommands include the argument" do
           assert @parent.has_subcommand?(@child)
         end
+
         it "returns false when the command's subcommands don't include the argument" do
           refute @parent.has_subcommand?(@orphan)
         end
@@ -267,6 +271,7 @@ EOF
         it "returns true when the command is a subcommand of the given parent" do
           assert @child.subcommand_of?(@parent)
         end
+
         it "returns false when the command is not a subcommand of the given parent" do
           refute @orphan.subcommand_of?(@parent)
         end

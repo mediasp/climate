@@ -118,6 +118,10 @@ module Climate
       conflicting_options << args
     end
 
+    def depends(*args)
+      dependent_options << args
+    end
+
     def trollop_parser
       Trollop::Parser.new.tap do |parser|
         parser.stop_on @stop_on
@@ -128,6 +132,10 @@ module Climate
 
         conflicting_options.each do |conflicting|
           parser.conflicts(*conflicting)
+        end
+
+        dependent_options.each do |dependent|
+          parser.depends(*dependent)
         end
       end
     end
@@ -173,6 +181,7 @@ module Climate
 
     def parse(arguments, command=self)
       parser = self.trollop_parser
+
       begin
         options = parser.parse(arguments)
       rescue Trollop::CommandlineError => e
@@ -180,8 +189,10 @@ module Climate
           raise UnexpectedArgumentError.new(m[1], command)
         elsif (m = /option (.+) must be specified/.match(e.message))
           raise MissingArgumentError.new(m[1], command)
-        elsif (m = /(.+) conflicts with (.+)/.match(e.message))
+        elsif  /.+ conflicts with .+/.match(e.message)
           raise ConflictingOptionError.new(e.message, command)
+        elsif /.+ requires .+/.match(e.message)
+          raise MissingArgumentError.new(e.message, command)
         else
           raise CommandError.new(e.message, command)
         end
@@ -202,6 +213,7 @@ module Climate
     def cli_options         ; @cli_options ||= []         ; end
     def cli_arguments       ; @cli_arguments ||= []       ; end
     def conflicting_options ; @conflicting_options ||= [] ; end
+    def dependent_options   ; @dependent_options ||= []   ; end
 
     def has_options? ;     not cli_options.empty?   ; end
     def has_arguments? ;   not cli_arguments.empty? ; end

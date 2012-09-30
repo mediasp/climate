@@ -274,6 +274,27 @@ describe Climate::Parser do
     end
 
     describe 'with dependent options' do
+      before do
+        @subject.instance_eval do
+          opt "foo", "foo"
+          opt "bar", "bar"
+          opt "baz", "baz"
+
+          depends 'foo', 'bar'
+        end
+      end
+
+      it 'parses if both foo and bar are given' do
+        _, opts = @subject.parse ['--foo', '--bar']
+        assert_equal true, opts['foo']
+        assert_equal true, opts['bar']
+      end
+
+      it 'raises a help needed exception if both foo and bar are supplied' do
+        assert_raises Climate::MissingArgumentError do
+          @subject.parse ['--bar']
+        end
+      end
     end
   end
 

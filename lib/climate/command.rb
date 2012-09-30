@@ -207,5 +207,9 @@ module Climate
     def run
       raise NotImplementedError, "Leaf commands must implement a run method"
     end
+
+    def exit(status)
+      raise Climate::ExitException.new(nil, status)
+    end
   end
 end

@@ -27,8 +27,14 @@ module Climate
 
     def initialize(msg, exit_code=1)
       @exit_code = exit_code
+      @message = msg
       super(msg)
     end
+
+    # Ruby will helpfully change a nil message to be the name of the exception
+    # class, so we have to have a special predicate method to tell us whether
+    # message was nil or not
+    def has_message? ; !!@message ;  end
   end
 
   class HelpNeeded < CommandError

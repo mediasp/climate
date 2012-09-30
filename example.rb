@@ -58,6 +58,30 @@ DESC
     end
   end
 
+  class Test < Climate::Command('test')
+    include Common
+    subcommand_of Parent
+
+    description 'Test if a config value matches, exiting with 0 if it matches, 2 if it is less than, 3 if it is more than, and 4 if there is no key with that value.  1 is reserved for unexpected errors.'
+
+    arg :key, 'Name of the config key to check'
+    arg :value, 'Config value to be tested'
+
+    def run
+      yaml = config_yaml
+
+      exit(4) unless yaml.has_key?(arguments[:key])
+
+      expected_value = yaml[arguments[:key]]
+
+      case arguments[:value] <=> expected_value
+      when 0 then exit(0)
+      when -1 then exit(2)
+      when 1 then exit(3)
+      end
+    end
+  end
+
   class Show < Climate::Command('show')
     include Common
     subcommand_of Parent

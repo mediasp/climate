@@ -5,7 +5,8 @@ module Climate
     begin
       yield
     rescue ExitException => e
-      $stderr.puts(e.message)
+      # exit silently if there is no error message to print out
+      $stderr.puts(e.message) if e.has_message?
       exit(e.exit_code)
     rescue HelpNeeded => e
       print_usage(e.command_class, options)

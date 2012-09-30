@@ -154,6 +154,18 @@ describe 'example.rb' do
     end
   end
 
+  describe 'test' do
+    it 'lets you exit with a non-zero exit code without printing anything on ' +
+      'to stdout and stderr' do
+      run_example '-c set foo bar2'
+      assert_equal 0, last_status.exitstatus
+      run_example 'test foo bar1'
+      assert_equal '', last_stderr
+      assert_equal '', last_stdout
+      assert_equal 2, last_status.exitstatus
+    end
+  end
+
   describe 'echo - disable_parsing example' do
     it 'outputs any arguments you give it, but does not parse them' do
       run_example "echo this --shizzle -blows my mind"

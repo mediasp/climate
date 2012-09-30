@@ -15,7 +15,7 @@ spec = Gem::Specification.new do |s|
 
   s.executables = ['climate']
 
-  s.add_dependency('trollop')
+  s.add_dependency('trollop', '~> 2.0')
 
   s.add_development_dependency('minitest')
   s.add_development_dependency('yard')

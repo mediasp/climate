@@ -61,6 +61,10 @@ module Climate
         parent_class.add_subcommand(self)
       end
 
+      def subcommand_of?(parent_class)
+        parent_class.has_subcommand?(self)
+      end
+
       # Set the description for this command
       # @param [String] string Description/Banner/Help text
       def description(string=nil)
@@ -91,6 +95,10 @@ module Climate
         else
           raise DefinitionError, 'can not mix subcommands with arguments'
         end
+      end
+
+      def has_subcommand?(subcommand)
+        subcommands.include?(subcommand)
       end
 
       def arg(*args)

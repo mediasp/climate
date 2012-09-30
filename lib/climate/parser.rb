@@ -41,7 +41,7 @@ module Climate
     end
 
     def long_usage
-      type == :flag ? "--#{long}" : "--#{long}=<#{type}>"
+      type == :flag ? "--[no-]#{long}" : "--#{long}=<#{type}>"
     end
 
     def short_usage

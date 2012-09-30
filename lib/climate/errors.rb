@@ -18,6 +18,10 @@ module Climate
     end
   end
 
+  # Raised when there is some problem with parsing the command line, where the
+  # user is at fault
+  class ParsingError < CommandError ; end
+
   # Command instances can raise this error to exit
   class ExitException < CommandError
 
@@ -42,12 +46,15 @@ module Climate
   end
 
   # Raised when a {Command} is run with too many arguments
-  class UnexpectedArgumentError < CommandError ; end
+  class UnexpectedArgumentError < ParsingError ; end
 
   # Raised when a {Command} is run with insufficient arguments
-  class MissingArgumentError < CommandError ; end
+  class MissingArgumentError < ParsingError ; end
+
+  # Raised when two or more options conflict
+  class ConflictingOptionError < ParsingError ; end
 
   # Raised when a parent {Command} is asked to run a sub command it does not
   # know about
-  class UnknownCommandError < CommandError ; end
+  class UnknownCommandError < ParsingError ; end
 end

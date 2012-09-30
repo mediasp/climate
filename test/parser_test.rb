@@ -236,6 +236,45 @@ describe Climate::Parser do
         assert_equal 1, opts['num_splines']
       end
     end
+
+    describe 'with conflicting options' do
+      before do
+        @subject.instance_eval do
+          opt "foo", "foo"
+          opt "bar", "bar"
+          opt "baz", "baz"
+
+          conflicts 'foo', 'bar'
+        end
+      end
+
+      it 'parses just the foo option' do
+        _, opts = @subject.parse ['--foo']
+        assert_equal true, opts['foo']
+
+        _, opts = @subject.parse ['--foo', '--baz']
+        assert_equal true, opts['foo']
+        assert_equal true, opts['baz']
+      end
+
+      it 'parses just the bar option' do
+        _, opts = @subject.parse ['--bar']
+        assert_equal true, opts['bar']
+
+        _, opts = @subject.parse ['--bar', '--baz']
+        assert_equal true, opts['bar']
+        assert_equal true, opts['baz']
+      end
+
+      it 'raises a help needed exception if both foo and bar are supplied' do
+        assert_raises Climate::ConflictingOptionError do
+          @subject.parse ['--bar', '--foo']
+        end
+      end
+    end
+
+    describe 'with dependent options' do
+    end
   end
 
   describe "#cli_argument" do

@@ -1,7 +1,15 @@
 require 'trollop'
 
 module Climate
+
   def self.with_standard_exception_handling(options={}, &block)
+    error_messages = {
+      UnexpectedArgumentError => 'Unknown argument',
+      UnknownCommandError => 'Unknown command',
+      MissingArgumentError => 'Missing argument',
+      ConflictingOptionError => 'Conflicting options given'
+    }
+
     begin
       yield
     rescue ExitException => e
@@ -11,20 +19,8 @@ module Climate
     rescue HelpNeeded => e
       print_usage(e.command_class, options)
       exit(0)
-    rescue UnexpectedArgumentError => e
-      $stderr.puts("Unknown argument: #{e.message}")
-      print_usage(e.command_class, options)
-      exit(1)
-    rescue UnknownCommandError => e
-      $stderr.puts("Unknown command: #{e.message}")
-      print_usage(e.command_class, options)
-      exit(1)
-    rescue MissingArgumentError => e
-      $stderr.puts("Missing argument: #{e.message}")
-      print_usage(e.command_class, options)
-      exit(1)
-    rescue CommandError => e
-      $stderr.puts(e.message)
+    rescue ParsingError => e
+      $stderr.puts(error_messages[e.class] + ": #{e.message}")
       print_usage(e.command_class, options)
       exit(1)
     rescue => e

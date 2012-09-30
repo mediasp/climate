@@ -96,14 +96,28 @@ DESC
     arg :keys, 'one or more config keys to show', :required => false,
     :multi => true
 
+    opt :json, 'output as json'
+    opt :text, 'output as plain text', :default => true
+
+    conflicts :json, :text
+
     def run
       yaml = config_yaml
 
       keys = arguments[:keys]
       keys = yaml.keys.sort if keys.empty?
 
-      keys.each do |key|
-        stdout.puts("#{key}: #{yaml[key]}")
+      if options[:json]
+        stdout.puts('{')
+        keys.each do |key|
+          escaped = yaml[key].to_s.gsub('"', '\"')
+          stdout.puts("  \"#{key}\" : \"#{escaped}\"")
+        end
+        stdout.puts('}')
+      elsif options[:text]
+        keys.each do |key|
+          stdout.puts("#{key}: #{yaml[key]}")
+        end
       end
     end
   end

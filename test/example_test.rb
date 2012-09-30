@@ -126,7 +126,7 @@ describe 'example.rb' do
       run_example "set fave_book 'wuthering heights'"
     end
 
-    it 'with no arguments it dumps everything on to stdout' do
+    it 'with no arguments it dumps everything on to stdout in text format' do
       run_example "show"
       assert_equal 0, last_status.exitstatus
       assert_match "fave_animal: llama", last_stdout
@@ -151,6 +151,18 @@ describe 'example.rb' do
       assert_equal 0, last_status.exitstatus, last_stderr
       assert_match "fave_book: boy", last_stdout
       assert_match "fave_meal: toast", last_stdout
+    end
+
+    it 'can take a --json option and print it out in json format' do
+      run_example "show fave_book --json"
+      assert_equal 0, last_status.exitstatus
+      assert_match "{\n  \"fave_book\" : \"wuthering heights\"\n}", last_stdout
+    end
+
+    it 'barfs if you supply json and text options' do
+      run_example "show fave_book --json --text"
+      assert_equal 1, last_status.exitstatus
+      assert_match "Conflicting options given: --json conflicts with --text", last_stderr
     end
   end
 

@@ -29,14 +29,13 @@ Useful for one-shot scripts:
 
 This style is intended for embedding a CLI in to your existing application.
 
-    class Parent < Climate::Command
-      name 'thing'
+    class Parent < Climate::Command('thing')
       description "App that does it all, yet without fuss"
       opt    :log, "Whether to log to stdout" :default => false
     end
 
     class Arbitrary < Climate::Command
-      name 'arbitrary'
+      set_name 'arbitrary'
       subcommand_of, Parent
       description "Do something arbitrary to a file"
       arg    :path "Path to input file"

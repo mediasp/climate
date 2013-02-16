@@ -7,6 +7,11 @@ structure.
 
 Designed for both simple and more complex cases.
 
+ - Embed a CLI in to your application
+ - Builds on trollop, a refreshingly sane option parsing library
+ - N-levels of subcommands
+ - Nice help output
+
 # Easy
 
 Useful for one-shot scripts:

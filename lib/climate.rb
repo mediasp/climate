@@ -4,10 +4,16 @@ module Climate
 
   def self.error_messages
     error_messages = {
-      UnexpectedArgumentError => 'Unknown argument',
-      UnknownCommandError => 'Unknown command',
-      MissingArgumentError => 'Missing argument',
-      ConflictingOptionError => 'Conflicting options given'
+      UnexpectedArgumentError =>
+      proc {|e| "Unknown argument: #{e}" },
+      UnknownCommandError =>
+      proc {|e| "Unknown command '#{e}': #{e.command_class.ancestors.map(&:command_name).join(' ')} expects one of: #{e.command_class.subcommands.map(&:command_name).join(' ')}" },
+      MissingArgumentError =>
+      proc {|e| "Missing argument: #{e.message}" },
+      MissingSubcommandError =>
+      proc {|e| "Missing argument: #{e.command_class.ancestors.map(&:command_name).join(' ')} expects one of: #{e.command_class.subcommands.map(&:command_name).join(' ')}" },
+      ConflictingOptionError =>
+      proc {|e| "Conflicting options given: #{e}" }
     }
   end
 
@@ -19,30 +25,36 @@ module Climate
     end
   end
 
+  # extracted for stubbing/overriding without having to do it globally
+  def self.stderr ; $stderr ; end
+  def self.stdout ; $stdout ; end
+
   def self.handle_error(e, options)
     case e
     when ExitException
       # exit silently if there is no error message to print out
-      $stderr.puts(e.message) if e.has_message?
+      stderr.puts(e.message) if e.has_message?
       e.exit_code
     when HelpNeeded
-      print_usage(e.command_class, options)
+      help(e.command_class).print(options)
       0
     when ParsingError
-      $stderr.puts(error_messages[e.class] + ": #{e.message}")
-      print_usage(e.command_class, options)
+      stderr.puts(error_messages[e.class].call(e))
+      help(e.command_class).print_usage
       1
     else
-      $stderr.puts("Unexpected error: #{e.class.name} - #{e.message}")
-      $stderr.puts(e.backtrace)
+      stderr.puts("Unexpected error: #{e.class.name} - #{e.message}")
+      stderr.puts(e.backtrace)
       2
     end
   end
 
-  def self.print_usage(command_class, options={})
-    help = Help.new(command_class)
+  def self.help(command_class)
+    Help.new(command_class)
+  end
 
-    help.print(options)
+  def self.print_usage(command_class, options={})
+    help(command_class).print_usage(options)
   end
 
   def run(&block)

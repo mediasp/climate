@@ -185,7 +185,7 @@ EOF
       end
 
       it 'will raise a missing argument exception if no argument is passed' do
-        assert_raises Climate::MissingArgumentError do
+        assert_raises Climate::MissingSubcommandError do
           ParentCommandFoo.run(["--log"])
         end
       end

@@ -131,7 +131,7 @@ module Climate
         command_name, *arguments = parent.leftovers
 
         if command_name.nil?
-          raise MissingArgumentError.new("command #{parent.class.command_name}" +
+          raise MissingSubcommandError.new("command #{parent.class.command_name}" +
             " expects a subcommand as an argument", parent)
         end
 

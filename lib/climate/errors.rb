@@ -50,6 +50,7 @@ module Climate
 
   # Raised when a {Command} is run with insufficient arguments
   class MissingArgumentError < ParsingError ; end
+  class MissingSubcommandError < MissingArgumentError ; end
 
   # Raised when two or more options conflict
   class ConflictingOptionError < ParsingError ; end

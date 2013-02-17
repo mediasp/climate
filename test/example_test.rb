@@ -1,7 +1,4 @@
 require 'helpers'
-require 'popen4'
-require 'fileutils'
-require 'tempfile'
 
 describe 'example.rb' do
   include PopenHelper
@@ -36,7 +33,7 @@ describe 'example.rb' do
     run_example 'peter'
     assert_match 'usage: example', last_stdout
     assert_equal 1, last_status.exitstatus
-    assert_match 'Unknown command: peter', last_stderr
+    assert_match "Unknown command 'peter': example expects one of: ", last_stderr
   end
 
   it 'gives an error if you supply an option it does not recognise' do

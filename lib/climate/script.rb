@@ -10,7 +10,11 @@ module Climate
         @included = true
         at_exit do
           Climate.with_standard_exception_handling do
-            othermodule.send(:parse_argv)
+            begin
+              othermodule.send(:parse_argv)
+            rescue Trollop::HelpNeeded => e
+              raise HelpNeeded.new(othermodule)
+            end
             othermodule.send(:run)
           end
         end
@@ -35,7 +39,7 @@ module Climate
     attr_reader :arguments, :options, :leftovers
 
     def ancestors ; [self] ; end
-    def name ; File.basename($CLIMATE_PROGRAM_NAME || $PROGRAM_NAME) ; end
+    def command_name ; File.basename($CLIMATE_PROGRAM_NAME || $PROGRAM_NAME) ; end
 
     def has_subcommands? ; false ; end
 

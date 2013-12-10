@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'climate'
+require 'minitest/spec'
 require 'minitest/autorun'
 require 'popen4'
 require 'fileutils'

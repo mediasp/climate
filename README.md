@@ -62,3 +62,39 @@ There is a working example, `example.rb` that you can test out with
 or
 
     ruby -rrubygems -rclimate example.rb --help
+
+# rack-middleware like filtering
+
+Quite often in commands you might want some shared logic to do with setting up
+or tearing down an environment for your child commands.  For instance, you might
+want to setup an application environment, start a database transaction, or check
+some arguments are semantically correct in a way that is common based on a parent
+command, i.e:
+
+    class Parent < Climate::Command('parent')
+      def run(chain)
+        setup_logger
+        begin
+          chain.run
+        rescue => e
+          logger.error("oh noes!")
+          raise
+        end
+      end
+    end
+
+    class Child < Climate::Command('child')
+      subcommand_of Parent
+
+      def run
+        if all_ok?
+          do_the_thing
+        else
+          raise 'it went badly'
+        end
+      end
+    end
+
+The `run` method on non-leaf commands can also omit the chain argument, in which
+case you are not responsible for calling the next link in the chain, but you can
+still do some setup.

@@ -24,14 +24,52 @@ module Climate
   #
   class Command
 
+    # Chain is a helper class for allowing parent commands to participate in
+    # command execution
+    class Chain
+
+      def initialize(commands)
+        @commands = commands
+      end
+
+      def empty?
+        @commands.empty?
+      end
+
+      def run
+        raise "Can't call run on an empty command chain" if empty?
+
+        next_command = @commands.shift
+
+        begin
+          if next_command.method(:run).arity == 1
+            next_command.run(self)
+          else
+            result = next_command.run
+            # we ignore the result from a run method with arity == 0 unless
+            # it is the last command in the chain.  Really this is only a
+            # convenience for testing, so we can assert the chain was followed
+            # properly
+            if empty?
+              result
+            else
+              self.run
+            end
+          end
+        rescue Climate::CommandError => e
+          e.command_class = next_command.class if e.command_class.nil?
+          raise
+        end
+      end
+    end
+
     class << self
       include ParsingMethods
 
-      # Create an instance of this command class and run it against the given
-      # arguments
+      # Recursively construct an array of commands
       # @param [Array<String>] argv A list of arguments, ARGV style
       # @param [Hash] options see {#initialize}
-      def run(argv, options={})
+      def build(argv, options={})
         begin
           instance = new(argv, options)
         rescue Trollop::HelpNeeded
@@ -39,16 +77,22 @@ module Climate
         end
 
         if subcommands.empty?
-          begin
-            instance.run
-          rescue Climate::CommandError => e
-            # make it easier on users
-            e.command_class = self if e.command_class.nil?
-            raise
-          end
+          [instance]
         else
-          find_and_run_subcommand(instance, options)
+          [instance, *find_and_build_subcommand(instance, options)]
         end
+      end
+
+      def run(argv, options={})
+        command_instance_list = build(argv, options)
+        final_command = command_instance_list.last
+
+        if ! final_command.has_run?
+          raise NotImplementedError, "leaf command #{final_command} must implement #run"
+        end
+
+        runnable_commands = command_instance_list.select {|command| command.has_run? }
+        Chain.new(runnable_commands).run
       end
 
       def ancestors(exclude_self=false)
@@ -127,7 +171,7 @@ module Climate
 
       private
 
-      def find_and_run_subcommand(parent, options)
+      def find_and_build_subcommand(parent, options)
         command_name, *arguments = parent.leftovers
 
         if command_name.nil?
@@ -138,7 +182,7 @@ module Climate
         found = subcommands.find {|c| c.command_name == command_name }
 
         if found
-          found.run(arguments, options.merge(:parent => parent))
+          found.build(arguments, options.merge(:parent => parent))
         else
           raise UnknownCommandError.new(command_name, parent)
         end
@@ -147,7 +191,7 @@ module Climate
     end
 
     # Create an instance of this command to be run.  You'll probably want to use
-    # {Command.run}
+    # {Command.run
     # @param [Array<String>] arguments ARGV style arguments to be parsed
     # @option options [Command] :parent The parent command, made available as {#parent}
     # @option options [IO] :stdout stream to use as stdout, defaulting to `$stdout`
@@ -202,10 +246,8 @@ module Climate
       end
     end
 
-    # Run the command, must be implemented by all commands that are not parent
-    # commands (leaf commands)
-    def run
-      raise NotImplementedError, "Leaf commands must implement a run method"
+    def has_run?
+      self.methods.include? :run
     end
 
     def exit(status)

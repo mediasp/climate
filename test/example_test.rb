@@ -1,10 +1,12 @@
 require 'helpers'
 
+LIB_FLAG = /1\.8/.match(RUBY_VERSION) ? '-Ilib' : '-I.:lib'
+
 describe 'example.rb' do
   include PopenHelper
   def run_example(args, opts={})
     defaults = opts[:without_defaults] ? '' : "--config-file=#@conf_filename "
-    run_cmd('ruby -rrubygems -Ilib example.rb ' + defaults + args)
+    run_cmd("ruby -rrubygems #{LIB_FLAG} example.rb " + defaults + args)
   end
 
   before do
@@ -154,15 +156,15 @@ describe 'example.rb' do
     # let's just check it exits properly
 
     it 'can create a man page for the parent command' do
-      run_cmd "ruby -rrubygems -Ilib -rexample bin/climate-man Example::Parent"
+      run_cmd "ruby -rrubygems #{LIB_FLAG}  -rexample bin/climate-man Example::Parent"
       assert_equal 0, last_status.exitstatus, last_stderr
     end
 
     it 'can create a man page for the child commands' do
-      run_cmd "ruby -rrubygems -Ilib -rexample bin/climate-man Example::Show"
+      run_cmd "ruby -rrubygems #{LIB_FLAG} -rexample bin/climate-man Example::Show"
       assert_equal 0, last_status.exitstatus, last_stderr
 
-      run_cmd "ruby -rrubygems -Ilib -rexample bin/climate-man Example::Set"
+      run_cmd "ruby -rrubygems #{LIB_FLAG} -rexample bin/climate-man Example::Set"
       assert_equal 0, last_status.exitstatus, last_stderr
     end
 
@@ -174,7 +176,7 @@ This template is silly
 EOF
         template.flush
 
-        run_cmd "ruby -rrubygems -Ilib -rexample bin/climate-man" +
+        run_cmd "ruby -rrubygems #{LIB_FLAG} -rexample bin/climate-man" +
           " --template=#{template.path} Example::Set"
         assert_equal 0, last_status.exitstatus
         assert_match 'This template is silly', last_stdout

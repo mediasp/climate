@@ -169,6 +169,18 @@ module Climate
       def has_subcommands? ; not subcommands.empty?   ; end
       def subcommands ; @subcommands ||= [] ; end
 
+      def expose_ancestor_method(ancestor_class, method_name)
+        define_method(method_name) do |*args|
+          ancestor(ancestor_class).send(method_name, *args)
+        end
+      end
+
+      def expose_ancestor_methods(ancestor_class, *method_names)
+        method_names.each do |method_name|
+          expose_ancestor_method(ancestor_class, method_name)
+        end
+      end
+
       private
 
       def find_and_build_subcommand(parent, options)

@@ -1,5 +1,6 @@
 require 'helpers'
 
+module FilterTest
 describe 'allow parent commands to participate in the execution chain' do
 
   describe 'parent with a run(chain) method' do
@@ -60,5 +61,5 @@ describe 'allow parent commands to participate in the execution chain' do
     end
   end
 
-
+end
 end

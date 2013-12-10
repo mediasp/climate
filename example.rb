@@ -1,6 +1,9 @@
 require 'climate'
 require 'yaml'
 
+#
+# TODO rewrite to take advantage of run filtering and delegates
+#
 module Example
 
   class Parent < Climate::Command('example')

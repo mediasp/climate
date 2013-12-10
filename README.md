@@ -98,3 +98,32 @@ command, i.e:
 The `run` method on non-leaf commands can also omit the chain argument, in which
 case you are not responsible for calling the next link in the chain, but you can
 still do some setup.
+
+# Accessing your parent command at execution time
+
+In the case where you have some parent command that gets all the top level
+options for your application, (i.e. config location, log mode), you may need to
+access this from your child commands.  You can do this with the `ancestor`
+instance method, or by proxying the method to your child class with
+`expose_ancestor_method`.  For example:
+
+    class Parent < Climate::Command('parent')
+      def useful_stuff ; end
+      def handy_service ; end
+    end
+
+    class Child < Climate::Command('child')
+      subcommand_of Parent
+
+      expose_ancestor_method Parent, :handy_service
+
+      def run
+        # finds the parent command instance so you can interrogate it
+        ancestor(Parent).useful_stuff
+
+        # handy_service was defined as an instance method using the
+        # #expose_ancestor_method above, but ultimately it is syntactic sugar
+        # for the above
+        handy_service.send_the_things
+      end
+    end
